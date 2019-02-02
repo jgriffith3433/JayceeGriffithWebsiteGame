@@ -1,0 +1,8 @@
+mergeInto(LibraryManager.library, {
+  SetPage: function(page) {
+    ReactUnityWebGL.SetPage(Pointer_stringify(page));
+  },
+  OnReady: function(page) {
+    ReactUnityWebGL.OnReady();
+  }
+});
