@@ -4,5 +4,8 @@ mergeInto(LibraryManager.library, {
   },
   OnReady: function(page) {
     ReactUnityWebGL.OnReady();
+  },
+  GetPageNavigation: function(page) {
+    ReactUnityWebGL.GetPageNavigation();
   }
 });
