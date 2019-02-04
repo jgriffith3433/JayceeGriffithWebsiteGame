@@ -63,8 +63,15 @@ public class BasicBehaviour : MonoBehaviour
 	void Update()
 	{
 		// Store the input axes.
-		h = Input.GetAxis("Horizontal");
-		v = Input.GetAxis("Vertical");
+		h = Input.GetAxis("Horizontal") / 2;
+		v = Input.GetAxis("Vertical") / 2;
+
+        var accel = Input.acceleration.x / 2;
+
+        if (Mathf.Abs(accel) > .5f)
+        {
+            h -= Input.acceleration.x;
+        }
 
 		// Set the input axes on the Animator Controller.
 		anim.SetFloat(hFloat, h, 0.1f, Time.deltaTime);
@@ -73,15 +80,21 @@ public class BasicBehaviour : MonoBehaviour
 		// Toggle sprint by input.
 		sprint = Input.GetButton (sprintButton);
 
-		// Set the correct camera FOV for sprint mode.
-		if(IsSprinting())
-		{
-			changedFOV = true;
-			camScript.SetFOV(sprintFOV);
+        // Set the correct camera FOV for sprint mode.
+        if (IsSprinting())
+        {
+            changedFOV = true;
+            if (camScript)
+            {
+                camScript.SetFOV(sprintFOV);
+            }
 		}
 		else if(changedFOV)
 		{
-			camScript.ResetFOV();
+            if (camScript)
+            {
+                camScript.ResetFOV();
+            }
 			changedFOV = false;
 		}
 		// Set the grounded test on the Animator Controller.

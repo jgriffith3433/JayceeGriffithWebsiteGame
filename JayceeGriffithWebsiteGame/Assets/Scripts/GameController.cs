@@ -16,6 +16,9 @@ public class GameController : MonoBehaviour
     [DllImport("__Internal")]
     private static extern void GetPageNavigation();
 
+    [DllImport("__Internal")]
+    private static extern void GetPageWidth();
+
     public static GameController Instance;
 
     private Dictionary<string, string> PageNav;
@@ -36,6 +39,7 @@ public class GameController : MonoBehaviour
         try
         {
             OnReady();
+            GetPageWidth();
         }
         catch
         {
@@ -83,6 +87,11 @@ public class GameController : MonoBehaviour
         NavigationController.Instance.NextPageName = PageNav[jsonObj["nextLocation"].Value];
         NavigationController.Instance.PreviousPageName = PageNav[jsonObj["prevLocation"].Value];
         NavigationController.Instance.UpdateNavigation();
+    }
+
+    public void UpdatePageWidth(string width)
+    {
+        AdjustableSceneController.Instance.AdjustSceneToWidth(float.Parse(width));
     }
     #endregion
 }
