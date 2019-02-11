@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
 // This class manages which player behaviour is active or overriding, and call its local functions.
@@ -27,9 +28,12 @@ public class BasicBehaviour : MonoBehaviour
 	private Rigidbody rBody;                              // Reference to the player's rigidbody.
 	private int groundedBool;                             // Animator variable related to whether or not the player is on the ground.
 	private Vector3 colExtents;                           // Collider extents for ground test. 
+    private Coroutine ExternalInputDel;
+    private Vector2 ExternalInput = Vector2.zero;
+    private bool ExternalInputOverride = false;
 
-	// Get current horizontal and vertical axes.
-	public float GetH { get { return h; } }
+    // Get current horizontal and vertical axes.
+    public float GetH { get { return h; } }
 	public float GetV { get { return v; } }
 
 	// Get the player camera script.
@@ -62,15 +66,19 @@ public class BasicBehaviour : MonoBehaviour
 
 	void Update()
 	{
-		// Store the input axes.
-		h = Input.GetAxis("Horizontal") / 2;
-		v = Input.GetAxis("Vertical") / 2;
-
-        var accel = Input.acceleration.x / 2;
-
-        if (Mathf.Abs(accel) > .5f)
+        h = ExternalInput.x;
+        v = ExternalInput.y;
+        if (!ExternalInputOverride)
         {
-            h -= Input.acceleration.x;
+            h = Input.GetAxis("Horizontal") / 2;
+            v = Input.GetAxis("Vertical") / 2;
+
+            var accel = Input.acceleration.x / 2;
+
+            if (Mathf.Abs(accel) > 0.8f)
+            {
+                h -= Input.acceleration.x;
+            }
         }
 
 		// Set the input axes on the Animator Controller.
@@ -156,11 +164,29 @@ public class BasicBehaviour : MonoBehaviour
 				behaviour.LocalLateUpdate();
 			}
 		}
-
 	}
 
-	// Put a new behaviour on the behaviours watch list.
-	public void SubscribeBehaviour(GenericBehaviour behaviour)
+    public void AddExternalInput(Vector2 externalInput, float inputTime, bool externalInputOverride = true)
+    {
+        ExternalInputOverride = externalInputOverride;
+        if (ExternalInputDel != null)
+        {
+            StopCoroutine(ExternalInputDel);
+        }
+        ExternalInput = externalInput;
+        ExternalInputDel = StartCoroutine(ClearExternalInput(inputTime));
+    }
+
+    public IEnumerator ClearExternalInput(float inputTime)
+    {
+        yield return new WaitForSeconds(inputTime);
+        ExternalInput = Vector2.zero;
+        ExternalInputOverride = false;
+        ExternalInputDel = null;
+    }
+
+    // Put a new behaviour on the behaviours watch list.
+    public void SubscribeBehaviour(GenericBehaviour behaviour)
 	{
 		behaviours.Add (behaviour);
 	}

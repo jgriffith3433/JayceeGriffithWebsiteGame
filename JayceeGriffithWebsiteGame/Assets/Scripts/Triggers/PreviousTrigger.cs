@@ -4,14 +4,24 @@ using UnityEngine;
 
 public class PreviousTrigger : MonoBehaviour
 {
-    public GameObject GameCharacter;
+    public BasicBehaviour GameCharacter;
     public NextTrigger Next;
 
     private bool TriggerDisabled = false;
-    public IEnumerator DisableTrigger(float time)
+    public IEnumerator DisableTriggerTimed(float time)
     {
         TriggerDisabled = true;
         yield return new WaitForSeconds(time);
+        TriggerDisabled = false;
+    }
+
+    public void DisableTrigger()
+    {
+        TriggerDisabled = true;
+    }
+
+    public void EnableTrigger()
+    {
         TriggerDisabled = false;
     }
 
@@ -20,14 +30,32 @@ public class PreviousTrigger : MonoBehaviour
         if (!TriggerDisabled)
         {
             NavigationController.Instance.GoPrevious();
-            StartCoroutine(Next.DisableTrigger(1));
-            StartCoroutine(Teleport());
+            if (NavigationController.Instance.PreviousDropDown)
+            {
+                DisableNextAndTeleport(0);
+            }
+            else
+            {
+                DisableNextAndTeleport();
+            }
         }
     }
 
-    public IEnumerator Teleport()
+    public void DisableNextAndTeleport(float waitTime = .05f)
     {
-        yield return new WaitForSeconds(.05f);
-        GameCharacter.transform.position = Next.transform.position;
+        StartCoroutine(Next.DisableTriggerTimed(waitTime + 1));
+        StartCoroutine(Teleport(.5f));
+    }
+
+    public IEnumerator Teleport(float waitTime = .05f)
+    {
+        yield return new WaitForSeconds(waitTime);
+        GameCharacter.transform.position = Next.transform.position - new Vector3(1, 0, 0);
+        var rb = GameCharacter.GetRigidBody;
+        if (rb != null)
+        {
+            rb.velocity = Vector3.zero;
+        }
+        GameCharacter.AddExternalInput(new Vector2(-0.5f, 0), 0.25f);
     }
 }

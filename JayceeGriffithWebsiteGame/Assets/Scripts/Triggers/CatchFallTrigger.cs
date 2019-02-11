@@ -5,8 +5,10 @@ using UnityEngine;
 public class CatchFallTrigger : MonoBehaviour
 {
     public GameObject GameCharacter;
+    public GameObject SpawnPos;
+
     private void OnTriggerEnter(Collider other)
     {
-        GameCharacter.transform.position = new Vector3(0, 20, 0);
+        NavigationController.Instance.OnFall();
     }
 }

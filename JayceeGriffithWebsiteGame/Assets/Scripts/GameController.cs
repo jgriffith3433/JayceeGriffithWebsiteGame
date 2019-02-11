@@ -22,6 +22,8 @@ public class GameController : MonoBehaviour
     public static GameController Instance;
 
     private Dictionary<string, string> PageNav;
+    public BasicBehaviour GameCharacter;
+    public GameObject SpawnPos;
 
     public void Awake()
     {
@@ -30,7 +32,9 @@ public class GameController : MonoBehaviour
         PageNav.Add("", "");
         PageNav.Add("/", "Home");
         PageNav.Add("/portfolio", "Portfolio");
-        PageNav.Add("/reading", "Reading");
+        PageNav.Add("/about/me", "About Me");
+        PageNav.Add("/about/music", "Music");
+        PageNav.Add("/about/reading", "Reading");
     }
 
     public IEnumerator Start()
@@ -43,7 +47,8 @@ public class GameController : MonoBehaviour
         }
         catch
         {
-
+            Debug.Log("Error in calling: OnReady");
+            Debug.Log("Error in calling: GetPageWidth");
         }
     }
     #region ToReact
@@ -59,7 +64,7 @@ public class GameController : MonoBehaviour
                 }
                 catch
                 {
-
+                    Debug.Log("Error in calling: SetPage");
                 }
                 break;
             }
@@ -76,7 +81,23 @@ public class GameController : MonoBehaviour
         }
         catch
         {
+            Debug.Log("Error in calling: GetPageNavigation");
+        }
+    }
 
+    public void SpawnCharacter(float waitTime = 0.0f)
+    {
+        StartCoroutine(DoSpawnCharacter(waitTime));
+    }
+
+    private IEnumerator DoSpawnCharacter(float waitTime)
+    {
+        yield return new WaitForSeconds(waitTime);
+        GameCharacter.transform.position = SpawnPos.transform.position;
+        var rb = GameCharacter.GetRigidBody;
+        if (rb != null)
+        {
+            rb.velocity = Vector3.zero;
         }
     }
 
@@ -86,12 +107,17 @@ public class GameController : MonoBehaviour
         NavigationController.Instance.CurrentPageName = PageNav[jsonObj["currentLocation"].Value];
         NavigationController.Instance.NextPageName = PageNav[jsonObj["nextLocation"].Value];
         NavigationController.Instance.PreviousPageName = PageNav[jsonObj["prevLocation"].Value];
+        NavigationController.Instance.NextDropDown = jsonObj["nextDropDown"].AsBool;
+        NavigationController.Instance.PreviousDropDown = jsonObj["prevDropDown"].AsBool;
         NavigationController.Instance.UpdateNavigation();
+        AdjustableSceneController.Instance.Adjust();
     }
 
     public void UpdatePageWidth(string width)
     {
-        AdjustableSceneController.Instance.AdjustSceneToWidth(float.Parse(width));
+        AdjustableSceneController.Instance.SetPageWidth(float.Parse(width));
+        AdjustableSceneController.Instance.Adjust();
+        SpawnCharacter();
     }
     #endregion
 }
