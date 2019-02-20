@@ -4,25 +4,28 @@ using UnityEngine;
 
 public class test : MonoBehaviour
 {
-    [TextArea(5, 5)]
-    public string pagenav;
-    [TextArea(5, 5)]
-    public string nextpagenav;
+    public string page;
     public static test Instance;
+    public float[] testwidths;
     private void Awake()
     {
         Instance = this;
-        Debug.Log("Viewport Width: " + Screen.width);
     }
     IEnumerator Start()
     {
         yield return new WaitForSeconds(1);
-        GameController.Instance.UpdatePageNavigation(pagenav);
-        GameController.Instance.UpdatePageWidth("600");
+        GameController.Instance.LoadPage(page);
+        yield return new WaitForSeconds(1);
+        StartCoroutine(TestWidths());
     }
 
-    public void NavigateToPage(string NextPageName)
+    IEnumerator TestWidths()
     {
-        GameController.Instance.UpdatePageNavigation(nextpagenav);
+        foreach (var w in testwidths)
+        {
+            AdjustableSceneController.Instance.SetPageWidth(w);
+            AdjustableSceneController.Instance.Adjust();
+            yield return new WaitForSeconds(2);
+        }
     }
 }

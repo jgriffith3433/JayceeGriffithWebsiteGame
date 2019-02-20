@@ -30,7 +30,9 @@ public class BasicBehaviour : MonoBehaviour
 	private Vector3 colExtents;                           // Collider extents for ground test. 
     private Coroutine ExternalInputDel;
     private Vector2 ExternalInput = Vector2.zero;
+    private Vector2 MoveInput = Vector2.zero;
     private bool ExternalInputOverride = false;
+    private bool AccelerationInput = false;
 
     // Get current horizontal and vertical axes.
     public float GetH { get { return h; } }
@@ -66,18 +68,21 @@ public class BasicBehaviour : MonoBehaviour
 
 	void Update()
 	{
-        h = ExternalInput.x;
-        v = ExternalInput.y;
-        if (!ExternalInputOverride)
+        h = ExternalInput.x + MoveInput.x;
+        v = ExternalInput.y + MoveInput.y;
+        if (!ExternalInputOverride && MoveInput == Vector2.zero)
         {
             h = Input.GetAxis("Horizontal") / 2;
             v = Input.GetAxis("Vertical") / 2;
 
             var accel = Input.acceleration.x / 2;
 
-            if (Mathf.Abs(accel) > 0.8f)
+            if (AccelerationInput)
             {
-                h -= Input.acceleration.x;
+                if (Mathf.Abs(accel) > 0.8f)
+                {
+                    h -= Input.acceleration.x;
+                }
             }
         }
 
@@ -165,6 +170,11 @@ public class BasicBehaviour : MonoBehaviour
 			}
 		}
 	}
+
+    public void SetMoveInput(Vector2 dir)
+    {
+        MoveInput = dir;
+    }
 
     public void AddExternalInput(Vector2 externalInput, float inputTime, bool externalInputOverride = true)
     {

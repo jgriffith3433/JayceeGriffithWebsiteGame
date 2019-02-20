@@ -11,7 +11,7 @@ public class FlyBehaviour : GenericBehaviour
 	private int flyBool;                          // Animator variable related to flying.
 	private bool fly = false;                     // Boolean to determine whether or not the player activated fly mode.
 	private CapsuleCollider col;                  // Reference to the player capsulle collider.
-
+    public bool canFly = false;
 	// Start is always called after any Awake functions.
 	void Start()
 	{
@@ -27,7 +27,7 @@ public class FlyBehaviour : GenericBehaviour
 	{
 		// Toggle fly by input, only if there is no overriding state or temporary transitions.
 		if (Input.GetButtonDown(flyButton) && !behaviourManager.IsOverriding() 
-			&& !behaviourManager.GetTempLockStatus(behaviourManager.GetDefaultBehaviour))
+			&& !behaviourManager.GetTempLockStatus(behaviourManager.GetDefaultBehaviour) && canFly)
 		{
 			fly = !fly;
 

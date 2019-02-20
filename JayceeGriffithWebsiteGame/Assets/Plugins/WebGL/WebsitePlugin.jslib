@@ -2,13 +2,13 @@ mergeInto(LibraryManager.library, {
   SetPage: function(page) {
     ReactUnityWebGL.SetPage(Pointer_stringify(page));
   },
-  OnReady: function(page) {
+  OnReady: function() {
     ReactUnityWebGL.OnReady();
   },
-  GetPageNavigation: function() {
-    ReactUnityWebGL.GetPageNavigation();
+  MouseEvent: function(mouseEvent) {
+    ReactUnityWebGL.MouseEvent(Pointer_stringify(mouseEvent));
   },
-  GetPageWidth: function() {
-    ReactUnityWebGL.GetPageWidth();
+  GetDimensions: function() {
+	ReactUnityWebGL.GetDimensions();
   }
 });

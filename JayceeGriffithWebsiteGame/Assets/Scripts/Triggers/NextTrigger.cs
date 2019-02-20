@@ -8,6 +8,12 @@ public class NextTrigger : MonoBehaviour
     public PreviousTrigger Previous;
 
     private bool TriggerDisabled = false;
+
+    public void Awake()
+    {
+        StartCoroutine(DisableTriggerTimed(1));
+    }
+
     public IEnumerator DisableTriggerTimed(float time)
     {
         TriggerDisabled = true;
@@ -30,15 +36,6 @@ public class NextTrigger : MonoBehaviour
         if (!TriggerDisabled)
         {
             NavigationController.Instance.GoNext();
-            StartCoroutine(Previous.DisableTriggerTimed(1));
-            if (NavigationController.Instance.NextDropDown)
-            {
-                DisablePreviousAndTeleport(0);
-            }
-            else
-            {
-                DisablePreviousAndTeleport();
-            }
         }
     }
 
@@ -57,6 +54,6 @@ public class NextTrigger : MonoBehaviour
         {
             rb.velocity = Vector3.zero;
         }
-        GameCharacter.AddExternalInput(new Vector2(0.5f, 0), 0.25f);
+        GameCharacter.AddExternalInput(new Vector2(0.5f, 0), 0.50f);
     }
 }

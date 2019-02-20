@@ -8,6 +8,12 @@ public class PreviousTrigger : MonoBehaviour
     public NextTrigger Next;
 
     private bool TriggerDisabled = false;
+
+    public void Awake()
+    {
+        StartCoroutine(DisableTriggerTimed(1));
+    }
+
     public IEnumerator DisableTriggerTimed(float time)
     {
         TriggerDisabled = true;
@@ -30,14 +36,6 @@ public class PreviousTrigger : MonoBehaviour
         if (!TriggerDisabled)
         {
             NavigationController.Instance.GoPrevious();
-            if (NavigationController.Instance.PreviousDropDown)
-            {
-                DisableNextAndTeleport(0);
-            }
-            else
-            {
-                DisableNextAndTeleport();
-            }
         }
     }
 
