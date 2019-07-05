@@ -23,7 +23,7 @@ public class GameController : MonoBehaviour
     public static GameController Instance;
 
     private Dictionary<string, string> PageNav;
-    public BasicBehaviour GameCharacter;
+    public GoobaCharacterController GameCharacter;
     public Quaternion OriginalLookRot;
     public GameObject SpawnPos;
     public float PageWidth;
@@ -46,6 +46,8 @@ public class GameController : MonoBehaviour
         PageNav.Add("/portfolio", "Portfolio");
         PageNav.Add("/about/me", "About Me");
         PageNav.Add("/about/music", "Music");
+        PageNav.Add("/about/gaming", "Gaming");
+        PageNav.Add("/about/videos", "Videos");
         PageNav.Add("/about/reading", "Reading");
         OriginalLookRot = GameCharacter.transform.rotation;
     }
@@ -83,6 +85,12 @@ public class GameController : MonoBehaviour
         HandleExternalMovement();
     }
 
+    public void AdjustCharacterSize(float pageWidth)
+    {
+        var clampedSize = Mathf.Clamp(pageWidth / 1000.0f, 0.75f, 1.25f);
+        GameCharacter.transform.localScale = new Vector3(clampedSize, clampedSize, clampedSize);
+    }
+
     public void SpawnCharacter(float waitTime = 0.0f)
     {
         StartCoroutine(DoSpawnCharacter(waitTime));
@@ -98,7 +106,9 @@ public class GameController : MonoBehaviour
             rb.velocity = Vector3.zero;
         }
         GameCharacter.transform.rotation = OriginalLookRot;
-        GameCharacter.AddExternalInput(new Vector2(0, 1), 1);
+        MoveToVector = Vector3.zero;
+        GameCharacter.SetMoveInput(Vector2.zero);
+        GameCharacter.AddExternalInput(new Vector2(0, -1), 0.1f);
     }
 
     public void ShowClickParticle(Vector3 pos, float initWaitTime = 0.25f, float waitTime = 1.0f)
@@ -143,16 +153,16 @@ public class GameController : MonoBehaviour
             var moveVector = (MoveToVector - GameCharacter.transform.position);
             var moveDir = moveVector.normalized;
 
-            if (moveVector.magnitude > 1.5f)
+            if (moveVector.magnitude > 1f)
             {
                 var moveInput = Vector2.zero;
                 if (moveDir.x > 0)
                 {
-                    moveInput = new Vector2(0.5f, 0);
+                    moveInput = new Vector2(1, 0);
                 }
                 else if (moveDir.x < 0)
                 {
-                    moveInput = new Vector2(-0.5f, 0);
+                    moveInput = new Vector2(-1, 0);
                 }
                 GameCharacter.SetMoveInput(moveInput);
             }
@@ -305,7 +315,7 @@ public class GameController : MonoBehaviour
                 }
                 if (firstTouch.phase == TouchPhase.Moved)
                 {
-                    var swipeSpeed = firstTouch.deltaPosition.magnitude / firstTouch.deltaTime;
+                    var swipeSpeed = firstTouch.deltaPosition.magnitude / firstTouch.deltaTime / 10000;
                     var swipeVector = firstTouch.deltaPosition * swipeSpeed;
                     if (swipeSpeed > 0.1f)
                     {
@@ -420,6 +430,7 @@ public class GameController : MonoBehaviour
         {
             AdjustableSceneController.Instance.SetPageWidth(PageWidth);
             AdjustableSceneController.Instance.Adjust();
+            AdjustCharacterSize(PageWidth);
         }
     }
     #endregion

@@ -11,7 +11,7 @@ public class MoveBehaviour : GenericBehaviour
 	public float jumpHeight = 1.5f;                 // Default jump height.
 	public float jumpIntertialForce = 10f;          // Default horizontal inertial force when jumping.
 
-	private float speed, speedSeeker;               // Moving speed.
+	private float speed;               // Moving speed.
 	private int jumpBool;                           // Animator variable related to jumping.
 	private int groundedBool;                       // Animator variable related to whether or not the player is on ground.
 	private bool jump;                              // Boolean to determine whether or not the player started a jump.
@@ -28,7 +28,6 @@ public class MoveBehaviour : GenericBehaviour
 		// Subscribe and register this behaviour as the default behaviour.
 		behaviourManager.SubscribeBehaviour (this);
 		behaviourManager.RegisterDefaultBehaviour (this.behaviourCode);
-		speedSeeker = runSpeed;
 	}
 
 	// Update is used to set features regardless the active behaviour.

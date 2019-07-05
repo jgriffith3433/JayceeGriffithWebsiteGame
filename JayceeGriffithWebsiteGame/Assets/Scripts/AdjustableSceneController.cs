@@ -42,18 +42,19 @@ public class AdjustableSceneController : MonoBehaviour
 
     private void AdjustToWidth()
     {
+        var fontSizeClamped = Mathf.Clamp(PageWidth / 75, 8, 12);
         var gcOldPos = GameController.Instance.GameCharacter.transform.position;
         Floor.transform.localScale = new Vector3(PageWidth / 100 * SceneAdjustmentRatio, Floor.transform.localScale.y, Floor.transform.localScale.z);
         PreviousTrigger.transform.position = new Vector3(-PageWidth / 200 * SceneAdjustmentRatio, PreviousTrigger.transform.position.y, PreviousTrigger.transform.position.z);
         NextTrigger.transform.position = new Vector3((PageWidth / 200 * SceneAdjustmentRatio) + NextOffset, NextTrigger.transform.position.y, NextTrigger.transform.position.z);
         Previous.sizeDelta = new Vector2(PageWidth / 35 * SceneAdjustmentRatio, Previous.sizeDelta.y);
-        PreviousText.fontSize = PageWidth / 90;
+        PreviousText.fontSize = fontSizeClamped;
         PreviousArrow.sizeDelta = new Vector2(PageWidth / 35 * SceneAdjustmentRatio, PreviousArrow.sizeDelta.y);
-        PreviousArrowText.fontSize = PageWidth / 90;
+        PreviousArrowText.fontSize = fontSizeClamped;
         Next.sizeDelta = new Vector2(PageWidth / 35 * SceneAdjustmentRatio, Next.sizeDelta.y);
-        NextText.fontSize = PageWidth / 90;
+        NextText.fontSize = fontSizeClamped;
         NextArrow.sizeDelta = new Vector2(PageWidth / 35 * SceneAdjustmentRatio, NextArrow.sizeDelta.y);
-        NextArrowText.fontSize = PageWidth / 90;
+        NextArrowText.fontSize = fontSizeClamped;
         GameController.Instance.GameCharacter.transform.position = gcOldPos;
     }
 }
