@@ -1,0 +1,15 @@
+{
+    "name": "BestHTTP",
+    "references": [
+        "GUID:609966d2acd277047ab81f37109bbbaa"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
