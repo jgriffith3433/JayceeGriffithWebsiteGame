@@ -106,10 +106,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1565654340892916584}
-  - component: {fileID: 1565654340892916587}
   - component: {fileID: 1565654340892916586}
-  - component: {fileID: 1565654340892916588}
   - component: {fileID: 7991788866319440925}
+  - component: {fileID: 8140578186463976253}
+  - component: {fileID: 2260379084699227528}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -133,22 +133,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1565654340892916587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1565654340892916596}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 262553534, guid: 4f883c7cdf4c6294f93a9d74d9029a3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mStaticID: 0
-  mDynamicID: 0
-  ignoreWarnings: 0
-  channelID: 0
 --- !u!54 &1565654340892916586
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -165,20 +149,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 2
---- !u!114 &1565654340892916588
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1565654340892916596}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: -1840639790, guid: 4f883c7cdf4c6294f93a9d74d9029a3b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  updatesPerSecond: 30
-  isImportant: 0
 --- !u!114 &7991788866319440925
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -192,7 +162,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Rigidbody: {fileID: 1565654340892916586}
-  PredictedPoint: {x: 0, y: 0, z: 0}
-  m_PredictionTime: 10
-  m_TNSyncRigidbody: {fileID: 1565654340892916588}
+  PredictedPoint1: {x: 0, y: 0, z: 0}
+  PredictedPoint2: {x: 0, y: 0, z: 0}
+  PredictedPoint3: {x: 0, y: 0, z: 0}
+  m_Prediction1Time: 5
+  m_Prediction2Time: 10
+  m_Prediction3Time: 15
+  m_TNSyncRigidbody: {fileID: 2260379084699227528}
   LastPlayerRacquetToHitBall: {fileID: 0}
+--- !u!114 &8140578186463976253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565654340892916596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 262553534, guid: e57fc88bd8ebda148b68775ebe76c682, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mStaticID: 0
+  mDynamicID: 0
+  ignoreWarnings: 0
+  channelID: 0
+--- !u!114 &2260379084699227528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565654340892916596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1840639790, guid: e57fc88bd8ebda148b68775ebe76c682, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  updatesPerSecond: 10
+  isImportant: 0

@@ -87,9 +87,8 @@ public class ExampleMenu : TNEventReceiver
         Debug.Log("Connecting to hub: " + GNetConfig.HubUrl);
         TNManager.ConnectToHub(GNetConfig.HubUrl, BrowserBridge.GamerTag);
         DontDestroyOnLoad(m_AudioSource.gameObject);
-        DontDestroyOnLoad(m_MenuCanvas);
-        DontDestroyOnLoad(m_EventSystem);
         DontDestroyOnLoad(m_GameCanvas);
+        DontDestroyOnLoad(m_EventSystem);
         StartCoroutine(HideText());
         if (m_Skip)
         {

@@ -114,8 +114,11 @@ public class PlayerRacquet : MonoBehaviour
         if (IsSpectating) return;
 		if (!tno.isMine) return;
 		if (tno.hasBeenDestroyed) return;
-        m_MousePositionInWorld = Camera.main.ScreenToWorldPoint(new Vector3(TouchHandler.screenPos.x, TouchHandler.screenPos.y, m_RacquetDistanceFromCamera));
-        transform.position = m_MousePositionInWorld;
+		if (Input.GetMouseButton(0) || Input.GetMouseButtonDown(0) || Input.GetTouch(0).phase == TouchPhase.Moved || Input.GetTouch(0).phase == TouchPhase.Stationary || Input.GetTouch(0).phase == TouchPhase.Began)
+		{
+			m_MousePositionInWorld = Camera.main.ScreenToWorldPoint(new Vector3(TouchHandler.screenPos.x, TouchHandler.screenPos.y, m_RacquetDistanceFromCamera));
+			transform.position = m_MousePositionInWorld;
+		}
 	}
 
 	[RFC]
