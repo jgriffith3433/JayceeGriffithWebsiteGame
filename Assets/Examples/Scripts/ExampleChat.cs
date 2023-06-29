@@ -5,6 +5,7 @@
 
 using UnityEngine;
 using GNet;
+using UnityEngine.UI;
 
 /// <summary>
 /// This example script shows how to create a chat window powered by the Tasharen Network framework.
@@ -17,14 +18,15 @@ public class ExampleChat : TNBehaviour
 	string mName = "Guest";
 	string mInput = "";
 	int mChannelID;
+	[SerializeField] private Transform m_ChatMessageParent = null;
+	[SerializeField] private GameObject m_ChatMessagePrefab = null;
+	[SerializeField] private GameObject m_ChatCanvas = null;
 
 	struct ChatEntry
 	{
 		public string text;
 		public Color color;
 	}
-
-	GList<ChatEntry> mChatEntries = new GList<ChatEntry>();
 
 	/// <summary>
 	/// Add a new chat entry.
@@ -35,7 +37,21 @@ public class ExampleChat : TNBehaviour
 		ChatEntry ent = new ChatEntry();
 		ent.text = text;
 		ent.color = color;
-		mChatEntries.Add(ent);
+
+		var chatMessageInstance = Instantiate(m_ChatMessagePrefab, m_ChatMessageParent);
+		var textComponent = chatMessageInstance.GetComponentInChildren<Text>();
+		textComponent.text = ent.text;
+		textComponent.color = ent.color;
+	}
+
+	public void ShowHideChat()
+	{
+		m_ChatCanvas.SetActive(!m_ChatCanvas.activeSelf);
+	}
+
+	public void PressChat()
+	{
+		ShowHideChat();
 	}
 
 	/// <summary>
@@ -186,34 +202,13 @@ public class ExampleChat : TNBehaviour
 		}
 	}
 
-	/// <summary>
-	/// This function draws the chat window.
-	/// </summary>
-
-	void OnGUI ()
-	{
-		float cx = Screen.width * 0.5f;
-		float cy = Screen.height * 0.5f;
-
-		GUI.Box(new Rect(Screen.width * 0.5f - 270f, Screen.height * 0.5f - 200f, 540f, 410f), "");
-
-		GUI.Label(new Rect(cx - 140f, cy - 170f, 80f, 24f), "Name");
-		if (Application.isPlaying) GUI.SetNextControlName("Name");
-		mName = GUI.TextField(new Rect(cx - 70f, cy - 170f, 120f, 24f), mName);
-
-		// Change the player's name when the button gets clicked.
-		if (GUI.Button(new Rect(cx + 60f, cy - 170f, 80f, 24f), "Change"))
-			TNManager.playerName = mName;
-
-		if (Application.isPlaying) GUI.SetNextControlName("Chat Window");
-		mRect = new Rect(cx - 200f, cy - 120f, 400f, 300f);
-		GUI.Window(0, mRect, OnGUIWindow, "Chat Window");
-
-		if (Event.current.type == EventType.KeyUp)
+    private void Update()
+    {
+		if (Event.current != null && Event.current.type == EventType.KeyUp)
 		{
 			var keyCode = Event.current.keyCode;
 			string ctrl = GUI.GetNameOfFocusedControl();
-
+			Debug.Log(ctrl);
 			if (ctrl == "Name")
 			{
 				if (keyCode == KeyCode.Return)
@@ -242,45 +237,16 @@ public class ExampleChat : TNBehaviour
 				if (Application.isPlaying) GUI.FocusControl("Chat Input");
 			}
 		}
-
-#if UNITY_4_3 || UNITY_4_5 || UNITY_4_6 || UNITY_4_7
-		// Unity bug: http://forum.unity3d.com/threads/dest-m_multiframeguistate-m_namedkeycontrollist.158676/page-2
-		GUI.SetNextControlName(gameObject.GetHashCode().ToString());
-		Rect bounds = new Rect(-10, -10, 0, 0);
-		GUI.TextField(bounds, "", 0);
-#endif
 	}
 
-	/// <summary>
-	/// This function draws the chat window and the chat messages.
-	/// </summary>
-
-	void OnGUIWindow (int id)
+	public void PressedChange()
 	{
-		if (Application.isPlaying) GUI.SetNextControlName("Chat Input");
-		mInput = GUI.TextField(new Rect(6f, mRect.height - 30f, 328f, 24f), mInput);
+		TNManager.playerName = mName;
+	}
 
-		if (GUI.Button(new Rect(334f, mRect.height - 31f, 60f, 26f), "Send"))
-		{
-			Send();
-			if (Application.isPlaying) GUI.FocusControl("Chat Window");
-		}
-
-		GUI.BeginGroup(new Rect(2f, 20f, 382f, 254f));
-		{
-			Rect rect = new Rect(4f, 244f, 382f, 300f);
-
-			for (int i = mChatEntries.size; i > 0; )
-			{
-				var ent = mChatEntries.buffer[--i];
-				rect.y -= GUI.skin.label.CalcHeight(new GUIContent(ent.text), 382f);
-				GUI.color = ent.color;
-				GUI.Label(rect, ent.text, GUI.skin.label);
-				if (rect.y < 0f) break;
-			}
-			GUI.color = Color.white;
-		}
-		GUI.EndGroup();
+	public void PressedSend()
+    {
+		Send();
 	}
 
 	/// <summary>

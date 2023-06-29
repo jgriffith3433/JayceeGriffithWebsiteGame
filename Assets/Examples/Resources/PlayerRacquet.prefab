@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6219401859590781678}
   - component: {fileID: 1297208605154679415}
   - component: {fileID: 5848438314773612457}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: PlayerRacquet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 5632826825586054172}
   - component: {fileID: 7980248532144490557}
   - component: {fileID: 5864901443209746189}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RacquetModel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -196,7 +196,7 @@ GameObject:
   - component: {fileID: 5621774288919570714}
   - component: {fileID: 255075856612939337}
   - component: {fileID: 734329028800316793}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: RacquetHandle
   m_TagString: Untagged
   m_Icon: {fileID: 0}

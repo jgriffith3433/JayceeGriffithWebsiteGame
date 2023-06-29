@@ -572,7 +572,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BotGravPoint: {fileID: 0}
-  channelID: 1
+  channelID: 8
   prefabPath: Player
   persistent: 0
 --- !u!4 &166445891

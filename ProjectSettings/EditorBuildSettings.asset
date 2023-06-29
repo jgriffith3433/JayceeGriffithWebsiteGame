@@ -9,12 +9,30 @@ EditorBuildSettings:
     path: Assets/Menu.unity
     guid: c7d8dd8b29645994180e06ceecc070a5
   - enabled: 1
+    path: Assets/Examples/Scenes/Chat.unity
+    guid: 40c0f027114e0c348a357438cb99415a
+  - enabled: 1
+    path: Assets/Table Tennis.unity
+    guid: cc06c109cef82e34ba0d6d2bc24af4e6
+  - enabled: 1
+    path: Assets/Examples/Scenes/RFCs.unity
+    guid: 7973c4132331bdd45a727e96d469a7d8
+  - enabled: 1
+    path: Assets/Examples/Scenes/Object Creation.unity
+    guid: 97724f7a657300e4a98280c3a4e43e6e
+  - enabled: 1
+    path: Assets/Examples/Scenes/Frequent Packets.unity
+    guid: a7275e3360230384a8a1f50814a3caa3
+  - enabled: 1
+    path: Assets/Examples/Scenes/Movement.unity
+    guid: 32c297bd134e1d046b0becaa57fd4e4e
+  - enabled: 1
+    path: Assets/Examples/Scenes/Multiple Channels.unity
+    guid: c443fc24c0643d443b2469a842b66a8a
+  - enabled: 1
     path: Assets/Portfolio.unity
     guid: 3b2499df0a36f124aa2230899757587b
   - enabled: 1
     path: Assets/Empty.unity
     guid: 3bbc9af114a4a69479c769a2e7e5c12b
-  - enabled: 1
-    path: Assets/Table Tennis.unity
-    guid: cc06c109cef82e34ba0d6d2bc24af4e6
   m_configObjects: {}

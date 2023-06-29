@@ -63,7 +63,7 @@ public class DraggedObject : TNBehaviour
 		mTrans.position = pos;
 
 		// Move the object to the Ignore Raycast layer while it's being dragged
-		gameObject.layer = LayerMask.NameToLayer((mOwner != null) ? "TransparentFX" : "TransparentFX");
+		gameObject.layer = LayerMask.NameToLayer((mOwner != null) ? "TransparentFX" : "UI");
 	}
 
 	/// <summary>

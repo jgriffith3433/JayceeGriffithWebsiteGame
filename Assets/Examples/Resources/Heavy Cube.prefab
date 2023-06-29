@@ -28,6 +28,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 410460}
   m_RootOrder: 0
@@ -51,6 +52,7 @@ MeshRenderer:
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
   m_MotionVectors: 1
   m_LightProbeUsage: 0
   m_ReflectionProbeUsage: 1
@@ -93,9 +95,9 @@ GameObject:
   - component: {fileID: 3310460}
   - component: {fileID: 6510458}
   - component: {fileID: 5410458}
-  - component: {fileID: 11410462}
   - component: {fileID: 11410460}
-  - component: {fileID: 11410458}
+  - component: {fileID: 314039257579242649}
+  - component: {fileID: 7783643128942785645}
   m_Layer: 0
   m_Name: Heavy Cube
   m_TagString: Untagged
@@ -113,6 +115,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 410458}
   m_Father: {fileID: 0}
@@ -155,20 +158,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &11410462
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 110460}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8b60cb76d8d8319469ddbb94bac31d01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mStaticID: 8
-  ignoreWarnings: 0
 --- !u!114 &11410460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -181,7 +170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 978c5a66f363f0841a69f97dff7c0dc9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &11410458
+--- !u!114 &314039257579242649
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -190,7 +179,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 110460}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e786ed9512e0abf41a1db60c85fc00b5, type: 3}
+  m_Script: {fileID: 262553534, guid: e57fc88bd8ebda148b68775ebe76c682, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mStaticID: 0
+  mDynamicID: 0
+  ignoreWarnings: 0
+  channelID: 0
+--- !u!114 &7783643128942785645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1840639790, guid: e57fc88bd8ebda148b68775ebe76c682, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   updatesPerSecond: 10

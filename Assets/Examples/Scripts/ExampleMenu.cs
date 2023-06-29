@@ -66,7 +66,8 @@ public class ExampleMenu : TNEventReceiver
     public Text[] m_ServerOrChannelButtonTextList = null;
     public Button m_JoinLeaveChannelButton = null;
     public Text m_JoinLeaveChannelButtonText = null;
-    public GameObject m_MenuCanvas = null;
+    public GameObject m_LeftMenu = null;
+    public GameObject m_ServerOrChannelListMenu = null;
     public GameObject m_GameCanvas = null;
     public EventSystem m_EventSystem = null;
     public GameObject m_TutorialText = null;
@@ -192,16 +193,25 @@ public class ExampleMenu : TNEventReceiver
 
     public void JoinLeaveChannel()
     {
-        if (TNManager.isInChannel)
+        var inChannelOtherThanChat = TNManager.channels.size > 1 || (TNManager.channels.size == 1 && !TNManager.IsInChannel(1));
+
+        if (inChannelOtherThanChat)
         {
-            TNManager.LeaveChannel();
+            for (var i = 0; i < TNManager.channels.size; i++)
+            {
+                var channel = TNManager.channels.buffer[i];
+                if (channel.id != 1)
+                {
+                    TNManager.LeaveChannel(channel.id);
+                }
+            }
         }
         else
         {
-            var channelId = System.Array.IndexOf(examples, m_SelectedServerOrChannelName) + 1;
-            if (channelId != -1)
+            var channelId = System.Array.IndexOf(examples, m_SelectedServerOrChannelName) + 2;
+            if (channelId != 1)
             {
-                TNManager.JoinChannel(channelId, m_SelectedServerOrChannelName, true);
+                TNManager.JoinChannel(channelId, m_SelectedServerOrChannelName, false);
             }
         }
         m_SelectedServerOrChannelName = "";
@@ -209,13 +219,19 @@ public class ExampleMenu : TNEventReceiver
 
     public void ShowHideMenu()
     {
-        m_MenuCanvas.SetActive(!m_MenuCanvas.activeSelf);
+        m_LeftMenu.SetActive(!m_LeftMenu.activeSelf);
+        m_ServerOrChannelListMenu.SetActive(!m_ServerOrChannelListMenu.activeSelf);
+
+        long time = System.DateTime.UtcNow.Ticks / 10000;
+        mLobbyNextSend = time + (60 / LobbyRequestsPerMinute * 1000);
+        TNManager.client.player.SendPacket(new RequestServerListPacket(GameId));
     }
 
     void Update()
     {
         if (Application.isPlaying)
         {
+            var inChannelOtherThanChat = TNManager.channels.size > 1 || (TNManager.channels.size == 1 && !TNManager.IsInChannel(1));
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 ShowHideMenu();
@@ -243,9 +259,9 @@ public class ExampleMenu : TNEventReceiver
             }
             m_JoinLeaveServerButton.interactable = TNManager.isConnectedToHub && (!string.IsNullOrEmpty(m_SelectedGameServerId) || TNManager.isConnectedToGameServer);
             m_JoinLeaveServerButtonText.text = TNManager.isConnectedToGameServer ? "Leave Server" : "Join Server";
-            m_JoinLeaveChannelButton.interactable = (TNManager.isConnectedToGameServer && !string.IsNullOrEmpty(m_SelectedServerOrChannelName)) || (TNManager.isConnectedToGameServer && TNManager.isInChannel);
-            m_JoinLeaveChannelButtonText.text = TNManager.isConnectedToGameServer && TNManager.isInChannel ? "Leave Game" : "Join Game";
-
+            m_JoinLeaveChannelButton.interactable = (TNManager.isConnectedToGameServer && !string.IsNullOrEmpty(m_SelectedServerOrChannelName)) || (TNManager.isConnectedToGameServer && inChannelOtherThanChat);
+            m_JoinLeaveChannelButtonText.text = TNManager.isConnectedToGameServer && inChannelOtherThanChat ? "Leave Game" : "Join Game";
+            
             if (TNManager.isConnectedToGameServer)
             {
                 UpdateChannelList();
@@ -272,6 +288,7 @@ public class ExampleMenu : TNEventReceiver
 
     void UpdateChannelList()
     {
+        var inChannelOtherThanChat = TNManager.channels.size > 1 || (TNManager.channels.size == 1 && !TNManager.IsInChannel(1));
         for (int i = 0; i < m_ServerOrChannelButtonList.Length; ++i)
         {
             m_ServerOrChannelButtonList[i].GetComponent<ChannelOrServer>().IsServer = false;
@@ -280,7 +297,7 @@ public class ExampleMenu : TNEventReceiver
         {
             if (i < examples.Length)
             {
-                m_ServerOrChannelButtonList[i].gameObject.SetActive(true);
+                m_ServerOrChannelButtonList[i].gameObject.SetActive(!inChannelOtherThanChat);
                 var channelName = examples[i];
                 m_ServerOrChannelButtonList[i].gameObject.name = channelName;
                 m_ServerOrChannelButtonTextList[i].text = channelName;
@@ -295,7 +312,6 @@ public class ExampleMenu : TNEventReceiver
             }
         }
     }
-
 
     void OnReceivedServerList(CommandPacket commandPacket)
     {
@@ -386,18 +402,29 @@ public class ExampleMenu : TNEventReceiver
     protected override void OnConnectedToHub(ClientPlayer clientPlayer)
     {
         Debug.Log("Connected to hub: " + clientPlayer.ConnectionId);
+        StartCoroutine(UnloadMenuLoadEmpty());
         connectionId = clientPlayer.ConnectionId;
         TNManager.client.player.ReceiveResponseServerListPacket += OnReceivedServerList;
+        long time = System.DateTime.UtcNow.Ticks / 10000;
+        mLobbyNextSend = time + (60 / LobbyRequestsPerMinute * 1000);
+        TNManager.client.player.SendPacket(new RequestServerListPacket(GameId));
+
 #if UNITY_EDITOR
 #endif
+    }
+
+    private IEnumerator UnloadMenuLoadEmpty()
+    {
+        yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Empty");
+        m_GameCanvas.SetActive(true);
     }
 
     protected override void OnDisconnectedFromHub(ClientPlayer clientPlayer)
     {
         Debug.Log("Disconnected from hub: " + clientPlayer.ConnectionId);
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Empty");
         connectionId = "";
-        m_MenuCanvas.SetActive(true);
+        m_LeftMenu.SetActive(true);
+        m_ServerOrChannelListMenu.SetActive(true);
         if (TNManager.client != null && TNManager.client.player != null)
         {
             TNManager.client.player.ReceiveResponseServerListPacket -= OnReceivedServerList;
@@ -414,6 +441,7 @@ public class ExampleMenu : TNEventReceiver
     protected override void OnConnectedToGameServer(ClientPlayer clientPlayer)
     {
         Debug.Log("Connected to game server: " + clientPlayer.GameServerId);
+        TNManager.JoinChannel(1, "Chat", false, 255, "", false);
 #if UNITY_EDITOR
 #endif
     }
@@ -421,15 +449,19 @@ public class ExampleMenu : TNEventReceiver
     protected override void OnDisconnectedFromGameServer(ClientPlayer clientPlayer)
     {
         Debug.Log("Disconnected from game server");
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Empty");
-        m_MenuCanvas.SetActive(true);
+        m_LeftMenu.SetActive(true);
+        m_ServerOrChannelListMenu.SetActive(true);
         TNManager.client.player.SendPacket(new RequestServerListPacket(GameId));
     }
 
     protected override void OnJoinChannel(int channelID, bool success, string msg)
     {
         Debug.Log("Joined channel #" + channelID + " " + success + " " + msg);
-        m_MenuCanvas.SetActive(false);
+        if (channelID != 1)
+        {
+            m_LeftMenu.SetActive(false);
+            m_ServerOrChannelListMenu.SetActive(false);
+        }
     }
 
     protected override void OnLeaveChannel(int channelID)
@@ -437,8 +469,20 @@ public class ExampleMenu : TNEventReceiver
         Debug.Log("Left channel #" + channelID);
         if (TNManager.channels.size == 0)
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Empty");
-            m_MenuCanvas.SetActive(true);
+            if (channelID != 1)
+            {
+                m_LeftMenu.SetActive(true);
+                m_ServerOrChannelListMenu.SetActive(true);
+            }
+        }
+        else
+        {
+            if (channelID != 1)
+            {
+                m_LeftMenu.SetActive(true);
+                m_ServerOrChannelListMenu.SetActive(true);
+            }
+
         }
     }
 

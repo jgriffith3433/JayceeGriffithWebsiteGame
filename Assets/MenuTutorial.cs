@@ -31,18 +31,7 @@ public class MenuTutorial : MonoBehaviour
             m_PressedMenu = true;
         }
 
-        if (m_PressedMenu)
-        {
-            m_PressMenuArrow.gameObject.SetActive(false);
-        }
-        else
-        {
-            m_PressMenuArrow.SetActive(
-            !TNManager.isInChannel &&
-            ((!TNManager.isConnectedToGameServer && m_ExampleMenu.ServerList != null && m_ExampleMenu.ServerList.list.size > 0 && string.IsNullOrEmpty(m_ExampleMenu.GetSelectedServerOrChannelName())) ||
-            (TNManager.isConnectedToGameServer && string.IsNullOrEmpty(m_ExampleMenu.GetSelectedServerOrChannelName())))
-        );
-        }
+        m_PressMenuArrow.gameObject.SetActive(!m_PressedMenu && !TNManager.isConnectedToGameServer);
 
         m_CreateServerArrow.SetActive(!TNManager.isConnectedToGameServer && m_ExampleMenu.ServerList != null && m_ExampleMenu.ServerList.list.size == 0);
         
