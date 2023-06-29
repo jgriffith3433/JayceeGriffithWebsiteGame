@@ -69,10 +69,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 12800000, guid: 7d29e0e7b1d900243aac7678a9b3d428, type: 3}
-    m_FontSize: 20
+    m_FontSize: 25
     m_FontStyle: 0
     m_BestFit: 1
-    m_MinSize: 12
+    m_MinSize: 2
     m_MaxSize: 25
     m_Alignment: 3
     m_AlignByGeometry: 0
@@ -107,7 +107,7 @@ GameObject:
   - component: {fileID: 459959070067264340}
   - component: {fileID: 3802992151642699517}
   m_Layer: 5
-  m_Name: ChatMessage
+  m_Name: ChatMessageSm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -132,7 +132,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 400, y: 35}
+  m_SizeDelta: {x: 1000, y: 35}
   m_Pivot: {x: 0, y: 1}
 --- !u!222 &459959070067264340
 CanvasRenderer:

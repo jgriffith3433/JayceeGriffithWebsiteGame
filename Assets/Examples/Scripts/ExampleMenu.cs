@@ -51,28 +51,19 @@ public class ExampleMenu : TNEventReceiver
     float mGameServerListAlpha = 0f;
     float mChannelListAlpha = 0f;
     long mLobbyNextSend = 0;
+    long mLastClickTime = 0;
     public int LobbyRequestsPerMinute = 3;
+    public int DoubleClickTime = 500;
     public static ushort GameId = 1;
-    public Button m_StartStopServerButton = null;
-    public Text m_StartStopServerButtonText = null;
-    public Button m_JoinLeaveServerButton = null;
-    public Text m_JoinLeaveServerButtonText = null;
-    public Button m_SoundOnButton;
-    public Button m_SoundOffButton;
     public AudioSource m_AudioSource;
     [SerializeField]
     private float m_AudioVolume = 0.25f;
-    public Button[] m_ServerOrChannelButtonList = null;
-    public Text[] m_ServerOrChannelButtonTextList = null;
-    public Button m_JoinLeaveChannelButton = null;
-    public Text m_JoinLeaveChannelButtonText = null;
-    public GameObject m_LeftMenu = null;
-    public GameObject m_ServerOrChannelListMenu = null;
-    public GameObject m_GameCanvas = null;
+    public ScreenSizeSwitcher m_CanvasSwitcher = null;
     public EventSystem m_EventSystem = null;
-    public GameObject m_TutorialText = null;
     public bool m_Skip = true;
     public string m_SkipLevel = "Table Tennis";
+    public MenuObjects[] MenuObjects;
+    public bool MenuVisible = false;
 
     public string GetSelectedServerOrChannelName()
     {
@@ -88,9 +79,8 @@ public class ExampleMenu : TNEventReceiver
         Debug.Log("Connecting to hub: " + GNetConfig.HubUrl);
         TNManager.ConnectToHub(GNetConfig.HubUrl, BrowserBridge.GamerTag);
         DontDestroyOnLoad(m_AudioSource.gameObject);
-        DontDestroyOnLoad(m_GameCanvas);
+        DontDestroyOnLoad(m_CanvasSwitcher);
         DontDestroyOnLoad(m_EventSystem);
-        StartCoroutine(HideText());
         if (m_Skip)
         {
             StartCoroutine(Skip());
@@ -137,12 +127,6 @@ public class ExampleMenu : TNEventReceiver
         }
     }
 
-    private IEnumerator HideText()
-    {
-        yield return new WaitForSeconds(10);
-        m_TutorialText.SetActive(false);
-    }
-
     public void StartStopGameServer()
     {
         // stop any game server we are connected to
@@ -176,18 +160,69 @@ public class ExampleMenu : TNEventReceiver
         }
         m_SelectedServerOrChannelName = "";
         m_SelectedGameServerId = "";
+
+        DeselectAllButtons();
     }
 
-    public void SelectedChannelOrServer()
+    private void DeselectAllButtons()
     {
-        m_SelectedServerOrChannelName = EventSystem.current.currentSelectedGameObject.name;
-        if (EventSystem.current.currentSelectedGameObject.GetComponent<ChannelOrServer>().IsServer)
+        foreach (var menuObject in MenuObjects)
         {
-            m_SelectedGameServerId = m_SelectedServerOrChannelName;
+            if (menuObject.gameObject.activeSelf)
+            {
+                for (int i = 0; i < menuObject.m_ServerOrChannelButtonList.Length; ++i)
+                {
+                    var buttonComponent = menuObject.m_ServerOrChannelButtonList[i].GetComponent<Button>();
+                    var imageComponent = menuObject.m_ServerOrChannelButtonList[i].GetComponent<Image>();
+                    imageComponent.color = buttonComponent.colors.normalColor;
+                }
+            }
+        }
+    }
+
+    public void SelectedChannelOrServer(GameObject button)
+    {
+        var buttonComponent = button.GetComponent<Button>();
+        var imageComponent = button.GetComponent<Image>();
+        var isServer = button.GetComponent<ChannelOrServer>().IsServer;
+        long time = System.DateTime.UtcNow.Ticks / 10000;
+        if (time - mLastClickTime <= DoubleClickTime)
+        {
+            //double click
+            mLastClickTime = time;
+            if (!string.IsNullOrEmpty(m_SelectedServerOrChannelName))
+            {
+                DeselectAllButtons();
+                if (isServer)
+                {
+                    JoinLeaveServer();
+                }
+                else
+                {
+                    JoinLeaveChannel();
+                }
+            }
         }
         else
         {
-            m_SelectedGameServerId = "";
+            //single click
+            if (m_SelectedServerOrChannelName == button.name)
+            {
+                //click off
+                DeselectAllButtons();
+                imageComponent.color = buttonComponent.colors.normalColor;
+                m_SelectedServerOrChannelName = "";
+                m_SelectedGameServerId = "";
+            }
+            else
+            {
+                //click on
+                mLastClickTime = time;
+                DeselectAllButtons();
+                imageComponent.color = buttonComponent.colors.selectedColor;
+                m_SelectedServerOrChannelName = button.name;
+                m_SelectedGameServerId = isServer ? m_SelectedServerOrChannelName : "";
+            }
         }
     }
 
@@ -215,12 +250,17 @@ public class ExampleMenu : TNEventReceiver
             }
         }
         m_SelectedServerOrChannelName = "";
+        DeselectAllButtons();
     }
 
     public void ShowHideMenu()
     {
-        m_LeftMenu.SetActive(!m_LeftMenu.activeSelf);
-        m_ServerOrChannelListMenu.SetActive(!m_ServerOrChannelListMenu.activeSelf);
+        MenuVisible = !MenuVisible;
+        foreach (var menuObject in MenuObjects)
+        {
+            menuObject.m_LeftMenu.SetActive(MenuVisible);
+            menuObject.m_ServerOrChannelListMenu.SetActive(MenuVisible);
+        }
 
         long time = System.DateTime.UtcNow.Ticks / 10000;
         mLobbyNextSend = time + (60 / LobbyRequestsPerMinute * 1000);
@@ -236,47 +276,51 @@ public class ExampleMenu : TNEventReceiver
             {
                 ShowHideMenu();
             }
-            m_StartStopServerButton.interactable = TNManager.isConnectedToHub;
-            m_StartStopServerButtonText.text = TNManager.isConnectedToHub ? !string.IsNullOrEmpty(m_SelectedGameServerId) || TNManager.isConnectedToGameServer ? "Stop Server" : "Create Server" : "Connecting To Hub";
-            // if (!TNManager.isConnectedToHub && TNManager.client != null && TNManager.client.hubStage != GNet.NetworkPlayer.Stage.Connecting)
-            // {
-            //     //TODO: Show how to connect to hub manually?
-            //     TNManager.ConnectToHub(hubUrlToConnectTo, BrowserBridge.GamerTag);
-            //     return;
-            // }
-            // if (!TNSrcLobbyClient.Instance.IsConnectedToHub && !TNSrcLobbyClient.Instance.IsConnectingToHub)
-            // {
-            //     TNSrcLobbyClient.Instance.HubUrlToConnectTo = hubUrlToConnectTo;
-            //     TNSrcLobbyClient.Instance.ConnectToHub();
-            //     return;
-            // }
-            //lobby
-            long time = System.DateTime.UtcNow.Ticks / 10000;
-            if (mLobbyNextSend < time && TNManager.isConnectedToHub)
+            foreach (var menuObject in MenuObjects)
             {
-                mLobbyNextSend = time + (60 / LobbyRequestsPerMinute * 1000);
-                TNManager.client.player.SendPacket(new RequestServerListPacket(GameId));
-            }
-            m_JoinLeaveServerButton.interactable = TNManager.isConnectedToHub && (!string.IsNullOrEmpty(m_SelectedGameServerId) || TNManager.isConnectedToGameServer);
-            m_JoinLeaveServerButtonText.text = TNManager.isConnectedToGameServer ? "Leave Server" : "Join Server";
-            m_JoinLeaveChannelButton.interactable = (TNManager.isConnectedToGameServer && !string.IsNullOrEmpty(m_SelectedServerOrChannelName)) || (TNManager.isConnectedToGameServer && inChannelOtherThanChat);
-            m_JoinLeaveChannelButtonText.text = TNManager.isConnectedToGameServer && inChannelOtherThanChat ? "Leave Game" : "Join Game";
-            
-            if (TNManager.isConnectedToGameServer)
-            {
-                UpdateChannelList();
-                //hide servers
-                mGameServerListAlpha = UnityTools.SpringLerp(mGameServerListAlpha, 0, 8f, Time.deltaTime);
-                //show channels
-                mChannelListAlpha = UnityTools.SpringLerp(mChannelListAlpha, 1, 8f, Time.deltaTime);
-            }
-            else
-            {
-                UpdateServerList();
-                //show servers
-                mGameServerListAlpha = UnityTools.SpringLerp(mGameServerListAlpha, 1, 8f, Time.deltaTime);
-                //hide channels
-                mChannelListAlpha = UnityTools.SpringLerp(mChannelListAlpha, 0, 8f, Time.deltaTime);
+                menuObject.m_Information.SetActive(!TNManager.isConnectedToGameServer);
+                menuObject.m_StartStopServerButton.interactable = TNManager.isConnectedToHub;
+                menuObject.m_StartStopServerButtonText.text = TNManager.isConnectedToHub ? !string.IsNullOrEmpty(m_SelectedGameServerId) || TNManager.isConnectedToGameServer ? "Stop Server" : "Create Server" : "Connecting To Hub";
+                // if (!TNManager.isConnectedToHub && TNManager.client != null && TNManager.client.hubStage != GNet.NetworkPlayer.Stage.Connecting)
+                // {
+                //     //TODO: Show how to connect to hub manually?
+                //     TNManager.ConnectToHub(hubUrlToConnectTo, BrowserBridge.GamerTag);
+                //     return;
+                // }
+                // if (!TNSrcLobbyClient.Instance.IsConnectedToHub && !TNSrcLobbyClient.Instance.IsConnectingToHub)
+                // {
+                //     TNSrcLobbyClient.Instance.HubUrlToConnectTo = hubUrlToConnectTo;
+                //     TNSrcLobbyClient.Instance.ConnectToHub();
+                //     return;
+                // }
+                //lobby
+                long time = System.DateTime.UtcNow.Ticks / 10000;
+                if (mLobbyNextSend < time && TNManager.isConnectedToHub)
+                {
+                    mLobbyNextSend = time + (60 / LobbyRequestsPerMinute * 1000);
+                    TNManager.client.player.SendPacket(new RequestServerListPacket(GameId));
+                }
+                menuObject.m_JoinLeaveServerButton.interactable = TNManager.isConnectedToHub && (!string.IsNullOrEmpty(m_SelectedGameServerId) || TNManager.isConnectedToGameServer);
+                menuObject.m_JoinLeaveServerButtonText.text = TNManager.isConnectedToGameServer ? "Leave Server" : "Join Server";
+                menuObject.m_JoinLeaveChannelButton.interactable = (TNManager.isConnectedToGameServer && !string.IsNullOrEmpty(m_SelectedServerOrChannelName)) || (TNManager.isConnectedToGameServer && inChannelOtherThanChat);
+                menuObject.m_JoinLeaveChannelButtonText.text = TNManager.isConnectedToGameServer && inChannelOtherThanChat ? "Leave Game" : "Join Game";
+
+                if (TNManager.isConnectedToGameServer)
+                {
+                    UpdateChannelList();
+                    //hide servers
+                    mGameServerListAlpha = UnityTools.SpringLerp(mGameServerListAlpha, 0, 8f, Time.deltaTime);
+                    //show channels
+                    mChannelListAlpha = UnityTools.SpringLerp(mChannelListAlpha, 1, 8f, Time.deltaTime);
+                }
+                else
+                {
+                    UpdateServerList();
+                    //show servers
+                    mGameServerListAlpha = UnityTools.SpringLerp(mGameServerListAlpha, 1, 8f, Time.deltaTime);
+                    //hide channels
+                    mChannelListAlpha = UnityTools.SpringLerp(mChannelListAlpha, 0, 8f, Time.deltaTime);
+                }
             }
         }
     }
@@ -289,26 +333,29 @@ public class ExampleMenu : TNEventReceiver
     void UpdateChannelList()
     {
         var inChannelOtherThanChat = TNManager.channels.size > 1 || (TNManager.channels.size == 1 && !TNManager.IsInChannel(1));
-        for (int i = 0; i < m_ServerOrChannelButtonList.Length; ++i)
+        foreach (var menuObject in MenuObjects)
         {
-            m_ServerOrChannelButtonList[i].GetComponent<ChannelOrServer>().IsServer = false;
-        }
-        for (int i = 0; i < m_ServerOrChannelButtonList.Length; ++i)
-        {
-            if (i < examples.Length)
+            for (int i = 0; i < menuObject.m_ServerOrChannelButtonList.Length; ++i)
             {
-                m_ServerOrChannelButtonList[i].gameObject.SetActive(!inChannelOtherThanChat);
-                var channelName = examples[i];
-                m_ServerOrChannelButtonList[i].gameObject.name = channelName;
-                m_ServerOrChannelButtonTextList[i].text = channelName;
-                //m_ServerOrChannelButtonList[i].text.color = gameServerId == serverId ? black : red;
-
+                menuObject.m_ServerOrChannelButtonList[i].GetComponent<ChannelOrServer>().IsServer = false;
             }
-            else
+            for (int i = 0; i < menuObject.m_ServerOrChannelButtonList.Length; ++i)
             {
-                m_ServerOrChannelButtonList[i].gameObject.SetActive(false);
-                m_ServerOrChannelButtonList[i].gameObject.name = "";
-                m_ServerOrChannelButtonTextList[i].text = "";
+                if (i < examples.Length)
+                {
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.SetActive(!inChannelOtherThanChat);
+                    var channelName = examples[i];
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.name = channelName;
+                    menuObject.m_ServerOrChannelButtonTextList[i].text = channelName;
+                    //m_ServerOrChannelButtonList[i].text.color = gameServerId == serverId ? black : red;
+
+                }
+                else
+                {
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.SetActive(false);
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.name = "";
+                    menuObject.m_ServerOrChannelButtonTextList[i].text = "";
+                }
             }
         }
     }
@@ -323,39 +370,48 @@ public class ExampleMenu : TNEventReceiver
 
     void UpdateServerList()
     {
-        for (int i = 0; i < m_ServerOrChannelButtonList.Length; ++i)
+        foreach (var menuObject in MenuObjects)
         {
-            m_ServerOrChannelButtonList[i].GetComponent<ChannelOrServer>().IsServer = true;
-            if (ServerList != null && i < ServerList.list.size)
+            for (int i = 0; i < menuObject.m_ServerOrChannelButtonList.Length; ++i)
             {
-                m_ServerOrChannelButtonList[i].gameObject.SetActive(true);
-                var ent = ServerList.list.buffer[i];
-                var serverId = ent.serverId.ToString();
-                m_ServerOrChannelButtonList[i].gameObject.name = serverId;
-                m_ServerOrChannelButtonTextList[i].text = serverId;
-                //m_ServerOrChannelButtonList[i].text.color = gameServerId == serverId ? black : red;
-            }
-            else
-            {
-                m_ServerOrChannelButtonList[i].gameObject.SetActive(false);
-                m_ServerOrChannelButtonList[i].gameObject.name = "";
-                m_ServerOrChannelButtonTextList[i].text = "";
+                menuObject.m_ServerOrChannelButtonList[i].GetComponent<ChannelOrServer>().IsServer = true;
+                if (ServerList != null && i < ServerList.list.size)
+                {
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.SetActive(true);
+                    var ent = ServerList.list.buffer[i];
+                    var serverId = ent.serverId.ToString();
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.name = serverId;
+                    menuObject.m_ServerOrChannelButtonTextList[i].text = serverId;
+                    //MenuObjects.m_ServerOrChannelButtonList[i].text.color = gameServerId == serverId ? black : red;
+                }
+                else
+                {
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.SetActive(false);
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.name = "";
+                    menuObject.m_ServerOrChannelButtonTextList[i].text = "";
+                }
             }
         }
     }
 
     public void Mute()
     {
-        m_SoundOnButton.interactable = true;
-        m_SoundOffButton.interactable = false;
         AudioListener.volume = 0;
+        foreach (var menuObject in MenuObjects)
+        {
+            menuObject.m_SoundOnButton.interactable = true;
+            menuObject.m_SoundOffButton.interactable = false;
+        }
     }
 
     public void Unmute()
     {
-        m_SoundOnButton.interactable = false;
-        m_SoundOffButton.interactable = true;
         AudioListener.volume = m_AudioSource.volume;
+        foreach (var menuObject in MenuObjects)
+        {
+            menuObject.m_SoundOnButton.interactable = false;
+            menuObject.m_SoundOffButton.interactable = true;
+        }
     }
 
     public void QuitGame()
@@ -402,7 +458,7 @@ public class ExampleMenu : TNEventReceiver
     protected override void OnConnectedToHub(ClientPlayer clientPlayer)
     {
         Debug.Log("Connected to hub: " + clientPlayer.ConnectionId);
-        StartCoroutine(UnloadMenuLoadEmpty());
+        StartCoroutine(LoadEmpty());
         connectionId = clientPlayer.ConnectionId;
         TNManager.client.player.ReceiveResponseServerListPacket += OnReceivedServerList;
         long time = System.DateTime.UtcNow.Ticks / 10000;
@@ -413,18 +469,23 @@ public class ExampleMenu : TNEventReceiver
 #endif
     }
 
-    private IEnumerator UnloadMenuLoadEmpty()
+    private IEnumerator LoadEmpty()
     {
         yield return UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("Empty");
-        m_GameCanvas.SetActive(true);
+        m_CanvasSwitcher.gameObject.SetActive(true);
     }
 
     protected override void OnDisconnectedFromHub(ClientPlayer clientPlayer)
     {
         Debug.Log("Disconnected from hub: " + clientPlayer.ConnectionId);
+        StartCoroutine(LoadEmpty());
         connectionId = "";
-        m_LeftMenu.SetActive(true);
-        m_ServerOrChannelListMenu.SetActive(true);
+        MenuVisible = true;
+        foreach (var menuObject in MenuObjects)
+        {
+            menuObject.m_LeftMenu.SetActive(true);
+            menuObject.m_ServerOrChannelListMenu.SetActive(true);
+        }
         if (TNManager.client != null && TNManager.client.player != null)
         {
             TNManager.client.player.ReceiveResponseServerListPacket -= OnReceivedServerList;
@@ -449,8 +510,13 @@ public class ExampleMenu : TNEventReceiver
     protected override void OnDisconnectedFromGameServer(ClientPlayer clientPlayer)
     {
         Debug.Log("Disconnected from game server");
-        m_LeftMenu.SetActive(true);
-        m_ServerOrChannelListMenu.SetActive(true);
+        StartCoroutine(LoadEmpty());
+        MenuVisible = true;
+        foreach (var menuObject in MenuObjects)
+        {
+            menuObject.m_LeftMenu.SetActive(true);
+            menuObject.m_ServerOrChannelListMenu.SetActive(true);
+        }
         TNManager.client.player.SendPacket(new RequestServerListPacket(GameId));
     }
 
@@ -459,8 +525,12 @@ public class ExampleMenu : TNEventReceiver
         Debug.Log("Joined channel #" + channelID + " " + success + " " + msg);
         if (channelID != 1)
         {
-            m_LeftMenu.SetActive(false);
-            m_ServerOrChannelListMenu.SetActive(false);
+            MenuVisible = false;
+            foreach (var menuObject in MenuObjects)
+            {
+                menuObject.m_LeftMenu.SetActive(false);
+                menuObject.m_ServerOrChannelListMenu.SetActive(false);
+            }
         }
     }
 
@@ -471,16 +541,24 @@ public class ExampleMenu : TNEventReceiver
         {
             if (channelID != 1)
             {
-                m_LeftMenu.SetActive(true);
-                m_ServerOrChannelListMenu.SetActive(true);
+                MenuVisible = true;
+                foreach (var menuObject in MenuObjects)
+                {
+                    menuObject.m_LeftMenu.SetActive(true);
+                    menuObject.m_ServerOrChannelListMenu.SetActive(true);
+                }
             }
         }
         else
         {
             if (channelID != 1)
             {
-                m_LeftMenu.SetActive(true);
-                m_ServerOrChannelListMenu.SetActive(true);
+                MenuVisible = true;
+                foreach (var menuObject in MenuObjects)
+                {
+                    menuObject.m_LeftMenu.SetActive(true);
+                    menuObject.m_ServerOrChannelListMenu.SetActive(true);
+                }
             }
 
         }

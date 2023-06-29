@@ -18,9 +18,8 @@ public class ExampleChat : TNBehaviour
 	string mName = "Guest";
 	string mInput = "";
 	int mChannelID;
-	[SerializeField] private Transform m_ChatMessageParent = null;
-	[SerializeField] private GameObject m_ChatMessagePrefab = null;
-	[SerializeField] private GameObject m_ChatCanvas = null;
+	[SerializeField] private ChatObjects[] ChatObjects = null;
+	bool ShowChat = false;
 
 	struct ChatEntry
 	{
@@ -37,16 +36,22 @@ public class ExampleChat : TNBehaviour
 		ChatEntry ent = new ChatEntry();
 		ent.text = text;
 		ent.color = color;
-
-		var chatMessageInstance = Instantiate(m_ChatMessagePrefab, m_ChatMessageParent);
-		var textComponent = chatMessageInstance.GetComponentInChildren<Text>();
-		textComponent.text = ent.text;
-		textComponent.color = ent.color;
+		foreach(var chatObject in ChatObjects)
+        {
+			var chatMessageInstance = Instantiate(chatObject.m_ChatMessagePrefab, chatObject.m_ChatMessageParent);
+			var textComponent = chatMessageInstance.GetComponentInChildren<Text>();
+			textComponent.text = ent.text;
+			textComponent.color = ent.color;
+		}
 	}
 
 	public void ShowHideChat()
 	{
-		m_ChatCanvas.SetActive(!m_ChatCanvas.activeSelf);
+		ShowChat = !ShowChat;
+		foreach (var chatObject in ChatObjects)
+		{
+			chatObject.m_ChatCanvas.SetActive(ShowChat);
+		}
 	}
 
 	public void PressChat()
