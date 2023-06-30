@@ -9,7 +9,7 @@ using System.Collections.Generic;
 public class TestPlayer : MonoBehaviour
 {
     [SerializeField] private PuppetMaster m_PuppetMaster = null;
-    [SerializeField] private CharacterMeleeDemo m_Character = null;
+    [SerializeField] private CharacterThirdPerson m_Character = null;
     [SerializeField] private GravPoint m_GravPoint = null;
     [SerializeField] private GravDraggedObject m_GravDraggedObject = null;
     [SerializeField] private UserControlAI m_UserControlAI = null;
@@ -69,11 +69,11 @@ public class TestPlayer : MonoBehaviour
     
     private IEnumerator Start()
     {
-        var player = TNManager.GetPlayer(tno.ownerID);
-        if (player != null)
-        {
-            m_PlayerNameText.text = player.name;
-        }
+        //var player = TNManager.GetPlayer(tno.ownerID);
+        //if (player != null)
+        //{
+        //    m_PlayerNameText.text = player.name;
+        //}
         while(m_SideScroller == null)
         {
             var ss = GameObject.FindObjectsOfType<Sidescroller>();
@@ -90,6 +90,7 @@ public class TestPlayer : MonoBehaviour
         {
             m_SideScroller.SetPlayer(this);
         }
+
     }
 
     public void Teleport(Vector3 position)
@@ -115,7 +116,7 @@ public class TestPlayer : MonoBehaviour
 
     private void OnChangedInputState()
     {
-        tno.Send("SetInputState", ForwardType.OthersSaved, m_UserControlAI.state.walk, m_UserControlAI.state.crouch, m_UserControlAI.state.jump, m_UserControlAI.state.actionIndex);
+        tno.Send("SetInputState", ForwardType.AllSaved, m_UserControlAI.state.walk, m_UserControlAI.state.crouch, m_UserControlAI.state.jump, m_UserControlAI.state.actionIndex);
     }
 
     /// <summary>
@@ -131,10 +132,12 @@ public class TestPlayer : MonoBehaviour
         }
         if (m_Character.onGround)
         {
-            //m_PuppetBehavior.enabled = true;
+            m_PuppetMaster.state = PuppetMaster.State.Alive;
+            //m_FallBehavior.enabled = false;
         }
         else
         {
+            //m_PuppetMaster.state = PuppetMaster.State.Dead;
             //m_FallBehavior.enabled = true;
         }
         if (m_UserControlAI.transform.position.y < -20)

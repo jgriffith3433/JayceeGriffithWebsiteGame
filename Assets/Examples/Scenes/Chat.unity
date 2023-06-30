@@ -170,7 +170,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   eventReceiverMask:
     serializedVersion: 2
-    m_Bits: 288
+    m_Bits: 290
   m_PlaneNormal: {x: 0, y: 1, z: 0}
 --- !u!81 &4173206
 AudioListener:

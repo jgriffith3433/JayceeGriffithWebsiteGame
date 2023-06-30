@@ -39,7 +39,9 @@ namespace RootMotion.Demos {
 		public float platformFriction = 7f;					// the acceleration of adapting the velocities of moving platforms
 		public float groundStickyEffect = 4f;				// power of 'stick to ground' effect - prevents bumping down slopes.
 		public float maxVerticalVelocityOnGround = 3f;		// the maximum y velocity while the character is grounded
-		public float velocityToGroundTangentWeight = 0f;	// the weight of rotating character velocity vector to the ground tangent
+		public float velocityToGroundTangentWeight = 0f;    // the weight of rotating character velocity vector to the ground tangent
+		public float groundSpeed = 6f; // determines the max speed of the character while grounded
+		public float groundControl = 2f; // determines the response speed of controlling the character while grounded
 
 		[Header("Rotation")]
 		public bool lookInCameraDirection; // should the character be looking in the same direction that the camera is facing
@@ -142,14 +144,19 @@ namespace RootMotion.Demos {
 
 			Rotate();
 
-			GroundCheck (); // detect and stick to ground
+			GroundCheck(); // detect and stick to ground
 
 			// Friction
-			if (userControl.state.move == Vector3.zero && groundDistance < airborneThreshold * 0.5f) HighFriction();
-			else ZeroFriction();
+			if (userControl.state.move == Vector3.zero && groundDistance < airborneThreshold * 0.5f)
+			{
+				HighFriction();
+			}
+			else
+			{
+				ZeroFriction();
+			}
 
 			bool stopSlide = onGround && userControl.state.move == Vector3.zero && r.velocity.magnitude < 0.5f && groundDistance < airborneThreshold * 0.5f;
-
 			// Individual gravity
 			if (gravityTarget != null) {
 				r.useGravity = false;
@@ -161,7 +168,6 @@ namespace RootMotion.Demos {
 				r.useGravity = false;
 				r.velocity = Vector3.zero;
 			} else if (gravityTarget == null) r.useGravity = true;
-
 			if (onGround) {
 				// Jumping
 				animState.jump = Jump();
@@ -221,6 +227,8 @@ namespace RootMotion.Demos {
 			
 			if (onGround) {
 				// Rotate velocity to ground tangent
+				Vector3 groundMove = new Vector3 (userControl.state.move.x * groundSpeed, 0f, userControl.state.move.z * groundSpeed);
+				velocity = Vector3.Lerp(r.velocity, groundMove, Time.deltaTime * groundControl);
 				if (velocityToGroundTangentWeight > 0f) {
 					Quaternion rotation = Quaternion.FromToRotation(transform.up, normal);
 					velocity = Quaternion.Lerp(Quaternion.identity, rotation, velocityToGroundTangentWeight) * velocity;
@@ -410,9 +418,8 @@ namespace RootMotion.Demos {
 			normal = transform.up;
 			//groundDistance = r.position.y - hit.point.y;
 			groundDistance = Vector3.Project(r.position - hit.point, transform.up).magnitude;
-
 			// if not jumping...
-			bool findGround = Time.time > jumpEndTime && velocityY < jumpPower * 0.5f;
+			bool findGround = (Time.time > jumpEndTime && velocityY < jumpPower * 0.5f);// || !onGround;
 
 			if (findGround) {
 				bool g = onGround;
@@ -425,7 +432,6 @@ namespace RootMotion.Demos {
 				Vector3 horizontalVelocity = V3Tools.ExtractHorizontal(r.velocity, gravity, 1f);
 
 				float velocityF = horizontalVelocity.magnitude;
-
 				if (groundDistance < groundHeight) {
 					// Force the character on the ground
 					stickyForceTarget = groundStickyEffect * velocityF * groundHeight;
@@ -448,6 +454,7 @@ namespace RootMotion.Demos {
 
 			// remember when we were last in air, for jump delay
 			if (!onGround) lastAirTime = Time.time;
+			//Debug.Log("onGround: " + onGround);
 		}
 	}
 }

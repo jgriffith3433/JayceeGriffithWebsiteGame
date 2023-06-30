@@ -69,6 +69,7 @@ namespace RootMotion.Demos {
             else
             {
                 state.move = distance > sD ? direction * moveSpeed : Vector3.zero;
+
                 state.lookPos = moveTarget.position;
             }
             if (!Input.GetKey(KeyCode.LeftShift))

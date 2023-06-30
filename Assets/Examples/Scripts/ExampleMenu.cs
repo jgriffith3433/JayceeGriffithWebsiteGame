@@ -93,7 +93,6 @@ public class ExampleMenu : TNEventReceiver
         while (!TNManager.isConnectedToHub)
         {
             yield return new WaitForSeconds(0.1f);
-
         }
 
         TNManager.client.player.SendPacket(new RequestServerListPacket(GameId));
@@ -123,7 +122,7 @@ public class ExampleMenu : TNEventReceiver
         }
         if (!string.IsNullOrEmpty(m_SkipLevel))
         {
-            TNManager.JoinChannel(2, m_SkipLevel, true);
+            TNManager.JoinChannel(8, m_SkipLevel, false, 255, "", false);
         }
     }
 
@@ -269,7 +268,7 @@ public class ExampleMenu : TNEventReceiver
 
     void Update()
     {
-        if (Application.isPlaying)
+        if (Application.isPlaying && TNManager.isConnectedToHub)
         {
             var inChannelOtherThanChat = TNManager.channels.size > 1 || (TNManager.channels.size == 1 && !TNManager.IsInChannel(1));
             if (Input.GetKeyDown(KeyCode.Escape))
@@ -303,7 +302,7 @@ public class ExampleMenu : TNEventReceiver
                 menuObject.m_JoinLeaveServerButton.interactable = TNManager.isConnectedToHub && (!string.IsNullOrEmpty(m_SelectedGameServerId) || TNManager.isConnectedToGameServer);
                 menuObject.m_JoinLeaveServerButtonText.text = TNManager.isConnectedToGameServer ? "Leave Server" : "Join Server";
                 menuObject.m_JoinLeaveChannelButton.interactable = (TNManager.isConnectedToGameServer && !string.IsNullOrEmpty(m_SelectedServerOrChannelName)) || (TNManager.isConnectedToGameServer && inChannelOtherThanChat);
-                menuObject.m_JoinLeaveChannelButtonText.text = TNManager.isConnectedToGameServer && inChannelOtherThanChat ? "Leave Game" : "Join Game";
+                menuObject.m_JoinLeaveChannelButtonText.text = TNManager.isConnectedToGameServer && inChannelOtherThanChat && string.IsNullOrEmpty(m_SelectedServerOrChannelName) ? "Leave Game" : "Join Game";
 
                 if (TNManager.isConnectedToGameServer)
                 {
@@ -343,7 +342,8 @@ public class ExampleMenu : TNEventReceiver
             {
                 if (i < examples.Length)
                 {
-                    menuObject.m_ServerOrChannelButtonList[i].gameObject.SetActive(!inChannelOtherThanChat);
+                    //menuObject.m_ServerOrChannelButtonList[i].gameObject.SetActive(!inChannelOtherThanChat);
+                    menuObject.m_ServerOrChannelButtonList[i].gameObject.SetActive(true);
                     var channelName = examples[i];
                     menuObject.m_ServerOrChannelButtonList[i].gameObject.name = channelName;
                     menuObject.m_ServerOrChannelButtonTextList[i].text = channelName;
