@@ -20,11 +20,18 @@ public class ExampleChat : TNBehaviour
 	int mChannelID;
 	[SerializeField] private ChatObjects[] ChatObjects = null;
 	bool ShowChat = false;
+	//[SerializeField]
+	//private GameObject m_Level = null;
 
 	struct ChatEntry
 	{
 		public string text;
 		public Color color;
+	}
+
+    private void Start()
+    {
+		//DontDestroyOnLoad(m_Level);
 	}
 
 	/// <summary>
@@ -97,7 +104,7 @@ public class ExampleChat : TNBehaviour
 	void OnJoinChannel (int channelID, bool success, string error)
 	{
 		mChannelID = channelID;
-		mName = TNManager.playerName;
+		//mName = TNManager.playerName;
 
 		// Show the current configuration
 		PrintServerData();
@@ -219,7 +226,7 @@ public class ExampleChat : TNBehaviour
 				if (keyCode == KeyCode.Return)
 				{
 					// Enter key pressed on the input field for the player's nickname -- change the player's name.
-					TNManager.playerName = mName;
+					//TNManager.playerName = mName;
 					if (Application.isPlaying) GUI.FocusControl("Chat Window");
 				}
 			}
@@ -246,7 +253,7 @@ public class ExampleChat : TNBehaviour
 
 	public void PressedChange()
 	{
-		TNManager.playerName = mName;
+		//TNManager.playerName = mName;
 	}
 
 	public void PressedSend()

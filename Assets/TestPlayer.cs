@@ -67,30 +67,13 @@ public class TestPlayer : MonoBehaviour
     }
 
     
-    private IEnumerator Start()
+    private void Start()
     {
-        //var player = TNManager.GetPlayer(tno.ownerID);
-        //if (player != null)
-        //{
-        //    m_PlayerNameText.text = player.name;
-        //}
-        while(m_SideScroller == null)
+        var player = TNManager.GetPlayer(tno.ownerID);
+        if (player != null)
         {
-            var ss = GameObject.FindObjectsOfType<Sidescroller>();
-            if (ss.Length > 0)
-            {
-                m_SideScroller = ss[0];
-            }
-            else
-            {
-                yield return new WaitForSeconds(0.1f);
-            }
+            m_PlayerNameText.text = player.name;
         }
-        if (tno.isMine)
-        {
-            m_SideScroller.SetPlayer(this);
-        }
-
     }
 
     public void Teleport(Vector3 position)
@@ -99,9 +82,11 @@ public class TestPlayer : MonoBehaviour
         {
             rb.velocity = new Vector3(0, 0, 0);
         }
+        m_PuppetMaster.mode = PuppetMaster.Mode.Disabled;
         m_PuppetMaster.Teleport(position, transform.rotation, false);
         m_GravPoint.transform.position = position;
         mNextT = 0;
+        m_PuppetMaster.mode = PuppetMaster.Mode.Active;
     }
 
     private void OnEnable()
@@ -176,6 +161,7 @@ public class TestPlayer : MonoBehaviour
     [RFC]
     protected void SetInputState(bool walk, bool crouch, bool jump, int actionIndex)
     {
+        //Debug.Log("New state: " + walk + " " + crouch + " " + jump + " " + actionIndex);
         m_UserControlAI.state.walk = walk;
         m_UserControlAI.state.crouch = crouch;
         m_UserControlAI.state.jump = jump;

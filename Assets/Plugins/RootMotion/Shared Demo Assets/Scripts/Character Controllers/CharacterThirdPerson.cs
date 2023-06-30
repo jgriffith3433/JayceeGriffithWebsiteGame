@@ -416,8 +416,15 @@ namespace RootMotion.Demos {
 
 			//normal = hit.normal;
 			normal = transform.up;
-			//groundDistance = r.position.y - hit.point.y;
-			groundDistance = Vector3.Project(r.position - hit.point, transform.up).magnitude;
+			if (hit.transform != null)
+			{
+				//groundDistance = r.position.y - hit.point.y;
+				groundDistance = Vector3.Project(r.position - hit.point, transform.up).magnitude;
+			}
+			else
+            {
+				groundDistance = airborneThreshold * 2;
+			}
 			// if not jumping...
 			bool findGround = (Time.time > jumpEndTime && velocityY < jumpPower * 0.5f);// || !onGround;
 
@@ -432,7 +439,8 @@ namespace RootMotion.Demos {
 				Vector3 horizontalVelocity = V3Tools.ExtractHorizontal(r.velocity, gravity, 1f);
 
 				float velocityF = horizontalVelocity.magnitude;
-				if (groundDistance < groundHeight) {
+				if (groundDistance < groundHeight)
+				{
 					// Force the character on the ground
 					stickyForceTarget = groundStickyEffect * velocityF * groundHeight;
 
@@ -454,7 +462,6 @@ namespace RootMotion.Demos {
 
 			// remember when we were last in air, for jump delay
 			if (!onGround) lastAirTime = Time.time;
-			//Debug.Log("onGround: " + onGround);
 		}
 	}
 }

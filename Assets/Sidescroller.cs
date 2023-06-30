@@ -18,13 +18,8 @@ public class Sidescroller : MonoBehaviour
     public float m_SimulatedPlayerXSpeed = 5f;
     private float m_SidescrollT = 0f;
     private TestPlayer m_Player = null;
-    private bool m_Scroll = false;
+    private bool m_Scroll = true;
 
-    private IEnumerator Start()
-    {
-        yield return new WaitForSeconds(2);
-        m_Scroll = true;
-    }
 
     public void SetPlayer(TestPlayer player)
     {

@@ -47,7 +47,8 @@ public class SpawnPlayer : MonoBehaviour
 		// Instantiate the prefab
 		p = prefab;
 		GameObject go = p.Instantiate();
-		go.name = "Player_" + playerId;
+		var player = TNManager.GetPlayer(playerId);
+		go.name = "Player_" + player.name;
 		pid = playerId;
 		//var player1Go = GameObject.Find("Player_1");
 		//GameObject.Find("BotGravPoint").GetComponent<GravPoint>().SetTarget(go.GetComponentInChildren<GravDraggedObject>(true).transform);

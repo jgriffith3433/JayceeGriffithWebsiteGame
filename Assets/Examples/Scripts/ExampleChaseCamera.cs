@@ -15,6 +15,8 @@ using GNet;
 
 public class ExampleChaseCamera : TNBehaviour
 {
+	public Vector3 RotationOffset = new Vector3(0, 0, 0);
+	public Vector3 PositionOffset = new Vector3(0, 0, 0);
 	static public Transform target;
 	public bool usePosition = true;
 	public bool useRotation = true;
@@ -41,11 +43,15 @@ public class ExampleChaseCamera : TNBehaviour
 		if (target)
 		{
 			Transform t = transform;
-			Vector3 forward = t.forward;
-			forward.y = 0f;
-			forward.Normalize();
 
 			Vector3 pos = t.position;
+			pos += PositionOffset;
+
+			Vector3 forward = t.forward;
+			forward.y = 0f;
+			forward += RotationOffset;
+			forward.Normalize();
+
 			Quaternion rot = Quaternion.LookRotation(forward);
 
 			float delta = Time.deltaTime;

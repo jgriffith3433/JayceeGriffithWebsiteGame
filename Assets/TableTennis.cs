@@ -42,7 +42,8 @@ public class TableTennis : MonoBehaviour
     {
 		var p = prefab;
 		GameObject go = p.Instantiate();
-		go.name = "Player_" + playerId;
+        var player = TNManager.GetPlayer(playerId);
+        go.name = "Player_" + player.name;
 		return go;
     }
 
@@ -133,7 +134,7 @@ public class TableTennis : MonoBehaviour
             yield return new WaitForSeconds(0.1f);
         }
 
-        TNManager.Instantiate(tno.channelID, "CreatePlayerRacquet", "PlayerRacquet", false, TNManager.playerID);
+        TNManager.Instantiate(tno.channelID, "CreatePlayerRacquet", "Racquet", false, TNManager.playerID);
         while (m_PlayerRacquets.Count < 2)
         {
             yield return new WaitForSeconds(0.1f);

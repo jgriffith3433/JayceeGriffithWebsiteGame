@@ -16,6 +16,7 @@ public class GravDraggedObject : TNBehaviour
     [SerializeField] private GravPoint m_GravPoint = null;
     [SerializeField] private Transform mTrans = null;
     [SerializeField] private TestPlayer m_Player = null;
+    [SerializeField] private int m_IgnoreLayer = 2;
 	public bool zeroZAxis = false;
 
 
@@ -48,10 +49,12 @@ public class GravDraggedObject : TNBehaviour
         // When pressed on an object, claim it for the player (unless it was already claimed).
         if (isPressed)
         {
+            gameObject.layer = m_IgnoreLayer;
             ChangeSlowlyMoveTowardsTarget(false);
         }
         else
         {
+            gameObject.layer = m_OriginalLayer;
             ChangeSlowlyMoveTowardsTarget(true);
         }
     }
@@ -72,6 +75,7 @@ public class GravDraggedObject : TNBehaviour
         {
             return;
         }
+        gameObject.layer = m_IgnoreLayer;
         mTarget = TouchHandler.worldPos;
         if (zeroZAxis)
         {

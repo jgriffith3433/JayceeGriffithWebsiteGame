@@ -116,14 +116,14 @@ public class ExampleMenu : TNEventReceiver
 
         TNManager.ConnectToGameServer(serverId);
 
-        while (!TNManager.isConnectedToGameServer)
-        {
-            yield return new WaitForSeconds(0.1f);
-        }
-        if (!string.IsNullOrEmpty(m_SkipLevel))
-        {
-            TNManager.JoinChannel(8, m_SkipLevel, false, 255, "", false);
-        }
+        //while (!TNManager.isConnectedToGameServer)
+        //{
+        //    yield return new WaitForSeconds(0.1f);
+        //}
+        //if (!string.IsNullOrEmpty(m_SkipLevel))
+        //{
+        //    TNManager.JoinChannel(8, m_SkipLevel, false, 255, "", false);
+        //}
     }
 
     public void StartStopGameServer()
@@ -228,7 +228,6 @@ public class ExampleMenu : TNEventReceiver
     public void JoinLeaveChannel()
     {
         var inChannelOtherThanChat = TNManager.channels.size > 1 || (TNManager.channels.size == 1 && !TNManager.IsInChannel(1));
-
         if (inChannelOtherThanChat)
         {
             for (var i = 0; i < TNManager.channels.size; i++)
@@ -237,6 +236,14 @@ public class ExampleMenu : TNEventReceiver
                 if (channel.id != 1)
                 {
                     TNManager.LeaveChannel(channel.id);
+                }
+            }
+            if (!string.IsNullOrEmpty(m_SelectedServerOrChannelName))
+            {
+                var channelId = System.Array.IndexOf(examples, m_SelectedServerOrChannelName) + 2;
+                if (channelId != 1)
+                {
+                    TNManager.JoinChannel(channelId, m_SelectedServerOrChannelName, false);
                 }
             }
         }

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1297208605154679415}
   - component: {fileID: 5848438314773612457}
   m_Layer: 0
-  m_Name: PlayerRacquet
+  m_Name: Racquet
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
