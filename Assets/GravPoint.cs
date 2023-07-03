@@ -17,6 +17,7 @@ public class GravPoint : MonoBehaviour
     {
         if (!m_Player.tno.isMine)
         {
+            gameObject.SetActive(false);
             return;
         }
         if (m_SlowlyMoveTowardsTarget)

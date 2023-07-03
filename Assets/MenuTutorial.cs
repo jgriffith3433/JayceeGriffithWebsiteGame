@@ -27,7 +27,7 @@ public class MenuTutorial : MonoBehaviour
         {
             m_PressedMenu = true;
         }
-        m_PressMenuArrow.gameObject.SetActive(!m_PressedMenu && !TNManager.isConnectedToGameServer);
+        m_PressMenuArrow.gameObject.SetActive(!m_PressedMenu && !inChannelOtherThanChat);
 
         m_CreateServerArrow.SetActive(!TNManager.isConnectedToGameServer && m_ExampleMenu.ServerList != null && m_ExampleMenu.ServerList.list.size == 0);
         
