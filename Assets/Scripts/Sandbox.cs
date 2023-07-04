@@ -12,22 +12,23 @@ public class Sandbox : MonoBehaviour
 	}
 
     [RCC]
-	static GameObject CreateSandboxObject(GameObject prefab, int playerId)
+	static GameObject CreateSandboxObject(GameObject prefab, int playerId, float offsetX, float offsetZ)
 	{
-		// Instantiate the prefab
-		var go = Instantiate(prefab);
 		var player = TNManager.GetPlayer(playerId);
 		var playerCharacter = GameObject.Find("Player_" + player.name);
+		TestPlayer testPlayerComponent = null;
 		if (playerCharacter != null)
-        {
-			var testPlayerComponent = playerCharacter.GetComponent<TestPlayer>();
-			if (testPlayerComponent != null)
-            {
-				go.transform.position = testPlayerComponent.UserControlAI.transform.position + (testPlayerComponent.UserControlAI.transform.forward * 5);
-				go.transform.rotation = testPlayerComponent.UserControlAI.transform.transform.rotation;
-			}
+		{
+			testPlayerComponent = playerCharacter.GetComponent<TestPlayer>();
 		}
-		go.name += "_" + player.name;
+		// Instantiate the prefab
+		var go = Instantiate(prefab);
+		if (testPlayerComponent != null)
+		{
+			go.transform.position = testPlayerComponent.UserControlAI.transform.position + (testPlayerComponent.UserControlAI.transform.forward * 5) + new Vector3(offsetX, 0, offsetZ);
+			go.transform.rotation = testPlayerComponent.UserControlAI.transform.transform.rotation;
+		}
+		go.name += "_" +player.name;
 		return go;
 	}
 }

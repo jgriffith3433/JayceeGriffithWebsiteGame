@@ -96,7 +96,7 @@ namespace MHLab.ReactUI.Core
 #if UNITY_EDITOR
         public static void DispatchPacket(string browserPacket)
         {
-            Debug.Log(browserPacket);
+            //Debug.Log(browserPacket);
         }
 #else
     [DllImport("__Internal")]

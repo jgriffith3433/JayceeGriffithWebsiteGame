@@ -14590,7 +14590,7 @@ GameObject:
   - component: {fileID: 3866368489739294079}
   - component: {fileID: 6334382861730547817}
   m_Layer: 9
-  m_Name: Gooba
+  m_Name: gooba
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
