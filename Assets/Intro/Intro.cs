@@ -10,9 +10,28 @@ public class Intro : MonoBehaviour
     public PlayableDirector IntroTimeline;
     private float m_PreviousVolume = 1;
 
+    [SerializeField]
+    private ShowGameObjectOnInput m_AudioControls = null;
+
+    [SerializeField]
+    private GameObject m_ClickToPlay = null;
+
     private void Awake()
     {
         m_PreviousVolume = AudioListener.volume;
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0) || Input.touchCount > 0)
+        {
+            if (IntroTimeline.state != PlayState.Playing)
+            {
+                IntroTimeline.Play();
+                m_AudioControls.gameObject.SetActive(true);
+                m_ClickToPlay.SetActive(false);
+            }
+        }
     }
 
     private void OnEnable()
