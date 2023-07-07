@@ -20,10 +20,10 @@ public class ExampleChaseCamera : TNBehaviour
 	static public Transform target;
 	public bool usePosition = true;
 	public bool useRotation = true;
+	public Transform mTrans;
 
 	Vector3 mPos;
 	Quaternion mRot;
-	Transform mTrans;
 
 	public override void OnStart ()
 	{
@@ -31,7 +31,7 @@ public class ExampleChaseCamera : TNBehaviour
 
 		if (tno == null || tno.isMine)
 		{
-			mTrans = transform;
+			//mTrans = transform;
 			mPos = mTrans.position;
 			mRot = mTrans.rotation;
 		}
@@ -42,7 +42,7 @@ public class ExampleChaseCamera : TNBehaviour
 	{
 		if (target)
 		{
-			Transform t = transform;
+			Transform t = mTrans;
 
 			Vector3 pos = t.position;
 			pos += PositionOffset;

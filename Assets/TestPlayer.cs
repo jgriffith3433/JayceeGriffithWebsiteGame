@@ -16,7 +16,6 @@ public class TestPlayer : MonoBehaviour
     [SerializeField] private Transform[] m_Ts = null;
     [SerializeField] private TextMesh m_PlayerNameText = null;
 
-
     private Vector3[] m_PosLastSent = null;
     private Quaternion[] m_RotLastSent = null;
 
@@ -37,7 +36,7 @@ public class TestPlayer : MonoBehaviour
     [System.NonSerialized]
     public TNObject tno;
 
-    private Sidescroller m_SideScroller = null;
+    private Coroutine m_GetUpCoroutine = null;
 
     protected float mNextState = 0f;
     protected float mNextT = 0f;
@@ -57,6 +56,16 @@ public class TestPlayer : MonoBehaviour
     {
         get { return m_UserControlAI; }
     }
+
+    public PuppetMaster PuppetMaster
+    {
+        get { return m_PuppetMaster; }
+    }
+
+    public CharacterThirdPerson Character
+    {
+        get { return m_Character; }
+    }
     private Rigidbody[] m_Rigidbodies = null;
     private void Awake()
     {
@@ -66,7 +75,28 @@ public class TestPlayer : MonoBehaviour
         m_RotLastSent = new Quaternion[m_Ts.Length];
     }
 
-    
+    public void Ragdoll()
+    {
+        m_PuppetMaster.state = PuppetMaster.State.Dead;
+        m_FallBehavior.enabled = true;
+        m_Character.enabled = false;
+        if (m_GetUpCoroutine != null)
+        {
+            StopCoroutine(m_GetUpCoroutine);
+            m_GetUpCoroutine = null;
+        }
+        m_GetUpCoroutine = StartCoroutine(GetUp());
+    }
+
+    private IEnumerator GetUp()
+    {
+        yield return new WaitForSeconds(3f);
+        m_PuppetBehavior.enabled = true;
+        m_Character.enabled = true;
+        m_PuppetMaster.state = PuppetMaster.State.Alive;
+        m_GetUpCoroutine = null;
+    }
+
     private void Start()
     {
         var player = TNManager.GetPlayer(tno.ownerID);
@@ -117,7 +147,7 @@ public class TestPlayer : MonoBehaviour
         }
         if (m_Character.onGround)
         {
-            m_PuppetMaster.state = PuppetMaster.State.Alive;
+            //m_PuppetMaster.state = PuppetMaster.State.Alive;
             //m_FallBehavior.enabled = false;
         }
         else

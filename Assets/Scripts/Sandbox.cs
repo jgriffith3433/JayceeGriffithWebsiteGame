@@ -1,6 +1,4 @@
 using GNet;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Sandbox : MonoBehaviour
@@ -29,6 +27,29 @@ public class Sandbox : MonoBehaviour
 			go.transform.rotation = testPlayerComponent.UserControlAI.transform.transform.rotation;
 		}
 		go.name += "_" +player.name;
+		return go;
+	}
+
+    [RCC]
+	static GameObject CreateRocket(GameObject prefab, int playerId, int playerIdToBomb)
+	{
+		var playerOnwer = TNManager.GetPlayer(playerId);
+		var playerToBomb = TNManager.GetPlayer(playerIdToBomb);
+		var playerToBombCharacter = GameObject.Find("Player_" + playerToBomb.name);
+
+		GameObject go = null;
+		// Instantiate the prefab
+		if (playerToBombCharacter != null)
+		{
+			var testPlayerComponent = playerToBombCharacter.GetComponent<TestPlayer>();
+			if (testPlayerComponent != null)
+			{
+				go = Instantiate(prefab);
+				go.transform.position = testPlayerComponent.UserControlAI.transform.position + new Vector3(0, 200, 0);
+				go.transform.rotation = Quaternion.LookRotation((testPlayerComponent.UserControlAI.transform.position - go.transform.position).normalized);
+			}
+		}
+		go.name += "_" + playerOnwer.name;
 		return go;
 	}
 }

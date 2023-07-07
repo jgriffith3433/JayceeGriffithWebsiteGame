@@ -7,17 +7,19 @@ public class Portfolio : MonoBehaviour
 
     private void Awake()
     {
-        var player = TNManager.GetPlayer(TNManager.player.id);
-        var playerCharacter = GameObject.Find("Player_" + player.name);
-		if (playerCharacter != null)
+        if (TNManager.instance != null && TNManager.player != null)
         {
-			var testPlayer = playerCharacter.GetComponent<TestPlayer>();
-			if (testPlayer != null)
+            var player = TNManager.GetPlayer(TNManager.player.id);
+            var playerCharacter = GameObject.Find("Player_" + player.name);
+            if (playerCharacter != null)
             {
-                m_Sidescroller.SetPlayer(testPlayer);
-				testPlayer.Teleport(transform.position);
-
-			}
+                var testPlayer = playerCharacter.GetComponent<TestPlayer>();
+                if (testPlayer != null)
+                {
+                    m_Sidescroller.SetPlayer(testPlayer);
+                    testPlayer.Teleport(transform.position);
+                }
+            }
         }
 	}
 }

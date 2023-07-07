@@ -14,5 +14,11 @@ using UnityEngine;
 
 public class ExampleChaseCameraTarget : MonoBehaviour
 {
-	void Awake () { ExampleChaseCamera.target = transform; }
+	void Awake()
+	{
+		if (ExampleChaseCamera.target == null)
+		{
+			ExampleChaseCamera.target = transform;
+		}
+	}
 }
