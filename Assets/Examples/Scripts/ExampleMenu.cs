@@ -46,7 +46,7 @@ public class ExampleMenu : TNEventReceiver
     public GUIStyle textLeft;
     public GUIStyle input;
     string m_SelectedGameServerId = "";
-    string m_SelectedServerOrChannelName = "";
+    [SerializeField] string m_SelectedServerOrChannelName = "";
     string connectionId = "";
     float mGameServerListAlpha = 0f;
     float mChannelListAlpha = 0f;
@@ -63,6 +63,8 @@ public class ExampleMenu : TNEventReceiver
     public bool m_Skip = true;
     public string m_SkipLevel = "Table Tennis";
     public MenuObjects[] MenuObjects;
+    public GameObject[] NewGameButtons;
+    public GameObject[] BackButtons;
     public bool MenuVisible = false;
 
     public string GetSelectedServerOrChannelName()
@@ -76,8 +78,6 @@ public class ExampleMenu : TNEventReceiver
         AudioListener.volume = m_AudioVolume;
         m_AudioSource.Play();
         BestHTTP.HTTPManager.Logger.Level = m_LogLevel;
-        Debug.Log("Connecting to hub: " + GNetConfig.HubUrl);
-        TNManager.ConnectToHub(GNetConfig.HubUrl, BrowserBridge.GamerTag);
         DontDestroyOnLoad(m_AudioSource.gameObject);
         DontDestroyOnLoad(m_CanvasSwitcher);
         DontDestroyOnLoad(m_EventSystem);
@@ -85,6 +85,8 @@ public class ExampleMenu : TNEventReceiver
         {
             StartCoroutine(Skip());
         }
+        Debug.Log("Connecting to hub: " + GNetConfig.HubUrl);
+        TNManager.ConnectToHub(GNetConfig.HubUrl, BrowserBridge.GamerTag);
     }
 
     private IEnumerator Skip()
@@ -173,7 +175,7 @@ public class ExampleMenu : TNEventReceiver
                 {
                     var buttonComponent = menuObject.m_ServerOrChannelButtonList[i].GetComponent<Button>();
                     var imageComponent = menuObject.m_ServerOrChannelButtonList[i].GetComponent<Image>();
-                    imageComponent.color = buttonComponent.colors.normalColor;
+                    //imageComponent.color = buttonComponent.colors.normalColor;
                 }
             }
         }
@@ -184,45 +186,65 @@ public class ExampleMenu : TNEventReceiver
         var buttonComponent = button.GetComponent<Button>();
         var imageComponent = button.GetComponent<Image>();
         var isServer = button.GetComponent<ChannelOrServer>().IsServer;
-        long time = System.DateTime.UtcNow.Ticks / 10000;
-        if (time - mLastClickTime <= DoubleClickTime)
+        DeselectAllButtons();
+        m_SelectedServerOrChannelName = button.name;
+        m_SelectedGameServerId = isServer ? m_SelectedServerOrChannelName : "";
+        if (isServer)
         {
-            //double click
-            mLastClickTime = time;
-            if (!string.IsNullOrEmpty(m_SelectedServerOrChannelName))
-            {
-                DeselectAllButtons();
-                if (isServer)
-                {
-                    JoinLeaveServer();
-                }
-                else
-                {
-                    JoinLeaveChannel();
-                }
-            }
+            JoinLeaveServer();
         }
         else
         {
-            //single click
-            if (m_SelectedServerOrChannelName == button.name)
-            {
-                //click off
-                DeselectAllButtons();
-                imageComponent.color = buttonComponent.colors.normalColor;
-                m_SelectedServerOrChannelName = "";
-                m_SelectedGameServerId = "";
-            }
-            else
-            {
-                //click on
-                mLastClickTime = time;
-                DeselectAllButtons();
-                imageComponent.color = buttonComponent.colors.selectedColor;
-                m_SelectedServerOrChannelName = button.name;
-                m_SelectedGameServerId = isServer ? m_SelectedServerOrChannelName : "";
-            }
+            JoinLeaveChannel();
         }
+        foreach (var backButton in BackButtons)
+        {
+            backButton.SetActive(true);
+        }
+        foreach (var menuObject in MenuObjects)
+        {
+            menuObject.m_SoundOffButton.gameObject.SetActive(false);
+            menuObject.m_SoundOnButton.gameObject.SetActive(false);
+        }
+        //long time = System.DateTime.UtcNow.Ticks / 10000;
+        //if (time - mLastClickTime <= DoubleClickTime)
+        //{
+        //    //double click
+        //    mLastClickTime = time;
+        //    if (!string.IsNullOrEmpty(m_SelectedServerOrChannelName))
+        //    {
+        //        DeselectAllButtons();
+        //        if (isServer)
+        //        {
+        //            JoinLeaveServer();
+        //        }
+        //        else
+        //        {
+        //            JoinLeaveChannel();
+        //        }
+        //    }
+        //}
+        //else
+        //{
+        //    //single click
+        //    if (m_SelectedServerOrChannelName == button.name)
+        //    {
+        //        //click off
+        //        DeselectAllButtons();
+        //        imageComponent.color = buttonComponent.colors.normalColor;
+        //        m_SelectedServerOrChannelName = "";
+        //        m_SelectedGameServerId = "";
+        //    }
+        //    else
+        //    {
+        //        //click on
+        //        mLastClickTime = time;
+        //        DeselectAllButtons();
+        //        imageComponent.color = buttonComponent.colors.selectedColor;
+        //        m_SelectedServerOrChannelName = button.name;
+        //        m_SelectedGameServerId = isServer ? m_SelectedServerOrChannelName : "";
+        //    }
+        //}
     }
 
     public void JoinLeaveChannel()
@@ -236,6 +258,21 @@ public class ExampleMenu : TNEventReceiver
                 if (channel.id != 1)
                 {
                     TNManager.LeaveChannel(channel.id);
+                    //ShowHideMenu();
+
+                    foreach (var menuObject in MenuObjects)
+                    {
+                        menuObject.m_SoundOffButton.gameObject.SetActive(AudioListener.volume != 0);
+                        menuObject.m_SoundOnButton.gameObject.SetActive(AudioListener.volume == 0);
+                    }
+                    foreach (var newGameButton in NewGameButtons)
+                    {
+                        newGameButton.SetActive(true);
+                    }
+                    foreach (var backButton in BackButtons)
+                    {
+                        backButton.SetActive(false);
+                    }
                 }
             }
             if (!string.IsNullOrEmpty(m_SelectedServerOrChannelName))
@@ -244,6 +281,10 @@ public class ExampleMenu : TNEventReceiver
                 if (channelId != 1)
                 {
                     TNManager.JoinChannel(channelId, m_SelectedServerOrChannelName, false);
+                    foreach (var backButton in BackButtons)
+                    {
+                        backButton.SetActive(false);
+                    }
                 }
             }
         }
@@ -253,10 +294,24 @@ public class ExampleMenu : TNEventReceiver
             if (channelId != 1)
             {
                 TNManager.JoinChannel(channelId, m_SelectedServerOrChannelName, false);
+                foreach (var backButton in BackButtons)
+                {
+                    backButton.SetActive(false);
+                }
             }
         }
         m_SelectedServerOrChannelName = "";
         DeselectAllButtons();
+    }
+
+    public void NewGamePressed()
+    {
+        foreach (var newGameButton in NewGameButtons)
+        {
+            newGameButton.SetActive(false);
+        }
+        MenuVisible = false;
+        ShowHideMenu();
     }
 
     public void ShowHideMenu()
@@ -284,7 +339,7 @@ public class ExampleMenu : TNEventReceiver
             }
             foreach (var menuObject in MenuObjects)
             {
-                menuObject.m_Information.SetActive(!TNManager.isConnectedToGameServer);
+                //menuObject.m_Information.SetActive(!TNManager.isConnectedToGameServer);
                 menuObject.m_StartStopServerButton.interactable = TNManager.isConnectedToHub;
                 menuObject.m_StartStopServerButtonText.text = TNManager.isConnectedToHub ? !string.IsNullOrEmpty(m_SelectedGameServerId) || TNManager.isConnectedToGameServer ? "Stop Server" : "Create Server" : "Connecting To Hub";
                 // if (!TNManager.isConnectedToHub && TNManager.client != null && TNManager.client.hubStage != GNet.NetworkPlayer.Stage.Connecting)
@@ -408,6 +463,8 @@ public class ExampleMenu : TNEventReceiver
         {
             menuObject.m_SoundOnButton.interactable = true;
             menuObject.m_SoundOffButton.interactable = false;
+            menuObject.m_SoundOffButton.gameObject.SetActive(false);
+            menuObject.m_SoundOnButton.gameObject.SetActive(true);
         }
     }
 
@@ -418,6 +475,8 @@ public class ExampleMenu : TNEventReceiver
         {
             menuObject.m_SoundOnButton.interactable = false;
             menuObject.m_SoundOffButton.interactable = true;
+            menuObject.m_SoundOnButton.gameObject.SetActive(false);
+            menuObject.m_SoundOffButton.gameObject.SetActive(true);
         }
     }
 
@@ -552,7 +611,7 @@ public class ExampleMenu : TNEventReceiver
                 foreach (var menuObject in MenuObjects)
                 {
                     menuObject.m_LeftMenu.SetActive(true);
-                    menuObject.m_ServerOrChannelListMenu.SetActive(true);
+                    //menuObject.m_ServerOrChannelListMenu.SetActive(true);
                 }
             }
         }
@@ -564,7 +623,7 @@ public class ExampleMenu : TNEventReceiver
                 foreach (var menuObject in MenuObjects)
                 {
                     menuObject.m_LeftMenu.SetActive(true);
-                    menuObject.m_ServerOrChannelListMenu.SetActive(true);
+                    //menuObject.m_ServerOrChannelListMenu.SetActive(true);
                 }
             }
 

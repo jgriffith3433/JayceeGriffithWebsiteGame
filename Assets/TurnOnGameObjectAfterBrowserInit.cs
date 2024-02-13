@@ -16,7 +16,6 @@ public class TurnOnGameObjectAfterBrowserInit : MonoBehaviour
             if (m_Instance == null)
             {
                 m_Instance = this;
-                DontDestroyOnLoad(gameObject);
             }
             else
             {

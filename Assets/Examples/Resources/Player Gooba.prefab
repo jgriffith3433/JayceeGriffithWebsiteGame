@@ -14367,7 +14367,7 @@ MonoBehaviour:
   groundStickyEffect: 4
   maxVerticalVelocityOnGround: 3
   velocityToGroundTangentWeight: 0
-  groundSpeed: 8
+  groundSpeed: 16
   groundControl: 2
   lookInCameraDirection: 0
   turnSpeed: 5
