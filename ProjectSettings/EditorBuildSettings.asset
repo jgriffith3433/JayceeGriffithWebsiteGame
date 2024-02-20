@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Sandbox.unity
     guid: 1aa0ce8dc6450634cbab98b261087170
+  - enabled: 1
+    path: Assets/Scenes/Underwater.unity
+    guid: 45e2bda2c3a70d94e983683cfa1747b7
   m_configObjects: {}

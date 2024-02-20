@@ -15,6 +15,7 @@ public class TestPlayer : MonoBehaviour
     [SerializeField] private UserControlAI m_UserControlAI = null;
     [SerializeField] private Transform[] m_Ts = null;
     [SerializeField] private TextMesh m_PlayerNameText = null;
+    [SerializeField] private float m_RespawnY = -20f;
 
     private Vector3[] m_PosLastSent = null;
     private Quaternion[] m_RotLastSent = null;
@@ -73,6 +74,11 @@ public class TestPlayer : MonoBehaviour
         tno = GetComponent<TNObject>();
         m_PosLastSent = new Vector3[m_Ts.Length];
         m_RotLastSent = new Quaternion[m_Ts.Length];
+    }
+
+    public void SetRespawnY(float respawnY)
+    {
+        m_RespawnY = respawnY;
     }
 
     public void Ragdoll()
@@ -155,7 +161,7 @@ public class TestPlayer : MonoBehaviour
             //m_PuppetMaster.state = PuppetMaster.State.Dead;
             //m_FallBehavior.enabled = true;
         }
-        if (m_UserControlAI.transform.position.y < -20)
+        if (m_UserControlAI.transform.position.y < m_RespawnY)
         {
             Teleport(new Vector3(transform.position.x, 10, 0));
         }
